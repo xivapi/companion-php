@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+/**
+ * CLI tool to test the Companion API
+ */
+
+// composer auto loader
+require __DIR__ . '/../vendor/autoload.php';
+
+$option = isset($argv[1]) ? trim($argv[1]) : false;
+$arg1   = isset($argv[2]) ? trim($argv[2]) : false;
+
+// do something

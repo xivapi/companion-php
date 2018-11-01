@@ -1,0 +1,21 @@
+{
+    "name": "xivapi/companion-php",
+    "type": "library",
+    "keywords": ["ffxiv","php","companion"],
+    "description": "A library for interacting with the FFXIV Companion App API",
+    "homepage": "https://github.com/xivapi/companion-php",
+    "license": "MIT",
+    "require": {
+        "guzzlehttp/guzzle": "~6.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Companion\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "Companion\\Tests\\": "tests/"
+        }
+    }
+}
