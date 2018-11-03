@@ -7,7 +7,9 @@
     "license": "MIT",
     "require": {
         "guzzlehttp/guzzle": "~6.0",
-        "ramsey/uuid": "^3.8"
+        "ramsey/uuid": "^3.8",
+        "paquettg/php-html-parser": "^1.7",
+        "phpseclib/phpseclib": "^2.0"
     },
     "autoload": {
         "psr-0": {

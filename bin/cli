@@ -7,9 +7,30 @@
 // composer auto loader
 require __DIR__ . '/../vendor/autoload.php';
 
+use Companion\CompanionApi;
+
 $option = isset($argv[1]) ? trim($argv[1]) : false;
 $arg1   = isset($argv[2]) ? trim($argv[2]) : false;
 
 // do something
-$api = new \Companion\CompanionApi();
-$api->test();
+$api = new CompanionApi();
+
+//$api->oAuth()->login('[user]', '[pass]');
+
+//
+// Get a list of characters
+//
+#print_r( $api->login()->characters() );
+
+//
+// Login with a character, this should return the region
+//
+//print_r( $api->login()->characters('a4b2ecf9e20837ab_26052') );
+
+//
+// Get market info for an item
+//
+print_r( $api->market()->prices(5) );
+
+
+die;

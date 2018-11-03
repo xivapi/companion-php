@@ -12,19 +12,30 @@ class SightRequest
     private $region;
     /** @var string */
     private $endpoint;
+    /** @var string */
+    private $referer;
     /** @var array */
     private $query = [];
     /** @var array */
     private $json = [];
     /** @var array */
     private $headers = [];
+    /** @var array */
+    private $formData = [];
+    /** @var array */
+    private $body = [];
+    /** @var bool */
+    private $squareEnixDomain = false;
 
     /**
      * Returns the correct base uri for the DC request
      */
     public function getBaseUri()
     {
-        $uri = Sight::ENDPOINT;
+        $uri = $this->isSquareEnixDomain()
+            ? Sight::ENDPOINT_SE
+            : Sight::ENDPOINT;
+        
         $uri = str_ireplace('{region}', $this->region, $uri);
         return $uri;
     }
@@ -53,7 +64,9 @@ class SightRequest
 
     public function getEndpoint(): string
     {
-        return $this->endpoint;
+        $endpoint = $this->endpoint;
+        $endpoint = $this->isSquareEnixDomain() ? $endpoint : Sight::VERSION_PATH . $endpoint;
+        return $endpoint;
     }
 
     public function setEndpoint(string $endpoint): SightRequest
@@ -61,7 +74,18 @@ class SightRequest
         $this->endpoint = $endpoint;
         return $this;
     }
-
+    
+    public function getReferer(): ?string
+    {
+        return $this->referer;
+    }
+    
+    public function setReferer(string $referer): SightRequest
+    {
+        $this->referer = $referer;
+        return $this;
+    }
+    
     public function getQuery(): array
     {
         return $this->query;
@@ -110,6 +134,51 @@ class SightRequest
     public function addHeader($field, $value): SightRequest
     {
         $this->headers[$field] = $value;
+        return $this;
+    }
+    
+    public function getFormData(): array
+    {
+        return $this->formData;
+    }
+    
+    public function setFormData(array $formData): SightRequest
+    {
+        $this->formData = $formData;
+        return $this;
+    }
+    
+    public function addFormData($field, $value): SightRequest
+    {
+        $this->formData[$field] = $value;
+        return $this;
+    }
+    
+    public function getBody(): array
+    {
+        return $this->body;
+    }
+    
+    public function setBody(array $body): SightRequest
+    {
+        $this->body = $body;
+        return $this;
+    }
+    
+    public function addBody($field, $value): SightRequest
+    {
+        $this->body[$field] = $value;
+        return $this;
+    }
+    
+    public function isSquareEnixDomain(): bool
+    {
+        return $this->squareEnixDomain;
+    }
+    
+    public function setSquareEnixDomain(bool $squareEnixDomain)
+    {
+        $this->squareEnixDomain = $squareEnixDomain;
         return $this;
     }
 }

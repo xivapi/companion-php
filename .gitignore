@@ -1,2 +1,3 @@
 .idea
 vendor
+src/Companion/Config/config.json

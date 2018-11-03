@@ -4,30 +4,64 @@ namespace Companion\Config;
 
 class SightConfig
 {
-    /** @var string */
-    private $token;
-    /** @var string */
-    private $region;
-
-    public function getToken(): string
+    const CONFIG_FILE   = __DIR__ .'/config.json';
+    const PEM_FILE      = __DIR__ .'/public-key.pem';
+    
+    /** @var \stdClass */
+    private static $config;
+    
+    private static function init()
     {
-        return $this->token;
+        // if no config, create one from dist
+        if (!file_exists(self::CONFIG_FILE)) {
+            copy(self::CONFIG_FILE .".dist", self::CONFIG_FILE);
+        }
+        
+        self::$config = json_decode(
+            file_get_contents(
+                self::CONFIG_FILE
+            )
+        );
     }
+    
+    /**
+     * Get config
 
-    public function setToken(string $token): SightConfig
+     * @param string|null $field
+     * @return null|\stdClass|string
+     */
+    public static function get(string $field = null)
     {
-        $this->token = $token;
-        return $this;
+        self::init();
+        
+        if ($field) {
+            return self::$config->{$field} ?? null;
+        }
+        
+        return self::$config;
     }
-
-    public function getRegion(): string
+    
+    /**
+     * Save/update a new field onto the config
+     */
+    public static function save($field, $value): void
     {
-        return $this->region;
+        self::init();
+        self::$config->{$field} = $value;
+        file_put_contents(
+            self::CONFIG_FILE,
+            json_encode(self::$config, JSON_PRETTY_PRINT)
+        );
     }
-
-    public function setRegion(string $region): SightConfig
+    
+    /**
+     * get the public key file data
+     */
+    public static function getPemData(): string
     {
-        $this->region = $region;
-        return $this;
+        self::init();
+        return trim(
+            file_get_contents(self::PEM_FILE)
+        );
     }
 }

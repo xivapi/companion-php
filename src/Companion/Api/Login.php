@@ -2,18 +2,38 @@
 
 namespace Companion\Api;
 
+use Companion\Config\SightConfig;
 use Companion\Http\Sight;
 use Companion\Models\SightRequest;
+use Ramsey\Uuid\Uuid;
 
 class Login extends Sight
 {
     /**
-     * Get a new 24 hour token using a login UID payload
+     * Get the active character for this account
      */
-    public function refreshToken($uid)
+    public function characters(string $id = null)
+    {
+        $req = new SightRequest();
+        $req->setMethod(self::METHOD_GET)
+            ->setEndpoint('/login/characters');
+        
+        if ($id) {
+            $req->setMethod(self::METHOD_POST)
+                ->setEndpoint("/login/characters/{$id}")
+                ->setJson([
+                    'appLocaleType' => 'EU'
+                ]);
+                
+        }
+        
+        return $this->request($req);
+    }
+    
+    public function token(string $uid)
     {
         $payload = [
-            'platform' => 1,
+            'platform' => 2,
             'uid' => $uid
         ];
 
@@ -40,19 +60,6 @@ class Login extends Sight
             ->setRegion(self::REGION_EU) // this needs to be part of token config
             ->setEndpoint('/login/fcm-token')
             ->setJson($payload);
-
-        return $this->request($req);
-    }
-
-    /**
-     * Login to the active character for this account
-     */
-    public function loginCharacter()
-    {
-        $req = new SightRequest();
-        $req->setMethod(self::METHOD_GET)
-            ->setRegion(self::REGION_EU) // this needs to be part of token config
-            ->setEndpoint('/login/character');
 
         return $this->request($req);
     }
