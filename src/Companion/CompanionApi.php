@@ -12,9 +12,15 @@ use Companion\Api\Payments;
 use Companion\Api\Points;
 use Companion\Api\Report;
 use Companion\Api\Schedule;
+use Companion\Config\SightConfig;
 
 class CompanionApi
 {
+    public function __construct(string $profile)
+    {
+        SightConfig::setProfile($profile);
+    }
+    
     public function oAuth()
     {
         return new OAuth();

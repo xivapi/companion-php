@@ -13,7 +13,7 @@ $option = isset($argv[1]) ? trim($argv[1]) : false;
 $arg1   = isset($argv[2]) ? trim($argv[2]) : false;
 
 // do something
-$api = new CompanionApi();
+$api = new CompanionApi('character_1');
 
 /**
  * The order of this is important:
@@ -32,10 +32,10 @@ $api = new CompanionApi();
 #print_r( $api->login()->characters() );
 
 // Login with a character, this should return the region
-#print_r( $api->login()->characters('82dd6862d3fc3f95_88848') );
+#print_r( $api->login()->characters('96a2598597454ad1_99638') );
 
 // Get current logged in character
-#print_r( $api->login()->character() );
+print_r( $api->login()->character() );
 
 // not sure ...
 #print_r( $api->login()->region() );

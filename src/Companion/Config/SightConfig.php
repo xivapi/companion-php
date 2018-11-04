@@ -7,6 +7,8 @@ class SightConfig
     const CONFIG_FILE   = __DIR__ .'/config.json';
     const PEM_FILE      = __DIR__ .'/public-key.pem';
     
+    /** @var string */
+    private static $profile;
     /** @var \stdClass */
     private static $config;
     
@@ -25,6 +27,16 @@ class SightConfig
     }
     
     /**
+     * Set the config profile for this instance, this is useful if you
+     * want to log into multiple characters and save multiple tokens
+     */
+    public static function setProfile(string $profile)
+    {
+        self::$profile = $profile;
+        self::init();
+    }
+    
+    /**
      * Get config
 
      * @param string|null $field
@@ -35,7 +47,7 @@ class SightConfig
         self::init();
         
         if ($field) {
-            return self::$config->{$field} ?? null;
+            return self::$config->{self::$profile}->{$field} ?? null;
         }
         
         return self::$config;
@@ -47,7 +59,14 @@ class SightConfig
     public static function save($field, $value): void
     {
         self::init();
-        self::$config->{$field} = $value;
+        
+        // create profile entry
+        if (!isset(self::$config->{self::$profile})) {
+            self::$config->{self::$profile} = (Object)[];
+        }
+        
+        self::$config->{self::$profile}->{$field} = $value;
+        
         file_put_contents(
             self::CONFIG_FILE,
             json_encode(self::$config, JSON_PRETTY_PRINT)
