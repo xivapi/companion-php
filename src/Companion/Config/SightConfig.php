@@ -47,7 +47,13 @@ class SightConfig
         self::init();
         
         if ($field) {
-            return self::$config->{self::$profile}->{$field} ?? null;
+            $value = self::$config->{self::$profile}->{$field} ?? null;
+            
+            if ($value === null) {
+                throw new \Exception("Required config value: {$value} is null, check config");
+            }
+            
+            return $value;
         }
         
         return self::$config;

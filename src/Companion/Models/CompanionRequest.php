@@ -13,9 +13,6 @@ class CompanionRequest
     const OAUTH_CALLBACK    = 'https://companion.finalfantasyxiv.com/api/0/auth/callback';
     
     const URI     = 'https://companion.finalfantasyxiv.com';
-    const URI_EU  = 'https://companion-eu.finalfantasyxiv.com';
-    const URI_NA  = 'https://companion-na.finalfantasyxiv.com';
-    const URI_JA  = 'https://companion-ja.finalfantasyxiv.com';
     const URI_SE  = 'https://secure.square-enix.com';
     const VERSION = '/sight-v060/sight';
     

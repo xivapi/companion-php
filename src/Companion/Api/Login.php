@@ -13,10 +13,20 @@ use Ramsey\Uuid\Uuid;
 class Login extends Sight
 {
     /**
-     * Methods: delete, post
+     * todo - implement
+     * @DELETE("login/auth")
      */
-    public function auth()
+    public function deleteAuth()
     {
+    
+    }
+    
+    /**
+     * @POST("login/auth")
+     */
+    public function postAuth()
+    {
+        // unsure if request-id and query request_id actually need to match..
         $uuid = Uuid::uuid4()->toString();
         
         $req = new CompanionRequest([
@@ -31,35 +41,35 @@ class Login extends Sight
                 'request_id' => $uuid
             ],
         ]);
-    
+        
         return $this->post($req)->getJson();
     }
     
     /**
-     * Methods: get
+     * @GET("login/character")
      */
-    public function character()
+    public function getCharacter()
     {
         $req = new CompanionRequest([
-            'uri'      => CompanionRequest::URI_EU,
+            'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/character',
         ]);
-    
+        
         return $this->get($req)->getJson();
     }
     
     /**
-     * Login with a specific character,
-     * this will return the region
+     * If you provide the character id, you will login as this character.
      *
-     * Methods: get, post(id)
+     * @GET("login/characters")
+     * @POST("login/characters/{characterId}")
      */
-    public function characters(string $id = null)
+    public function getCharacters(string $characterId = null)
     {
-        if ($id) {
+        if ($characterId) {
             $req = new CompanionRequest([
                 'uri'      => CompanionRequest::URI,
-                'endpoint' => "/login/characters/{$id}",
+                'endpoint' => "/login/characters/{$characterId}",
                 'json'     => [
                     'appLocaleType' => 'EU' // not sure what this is
                 ]
@@ -77,24 +87,31 @@ class Login extends Sight
     }
     
     /**
-     * Methods: get
+     * Get the uri region for the logged in character, this
+     * will save to the config and data center specific requests will
+     * use this region endpoint
+     *
+     * @GET("login/region")
      */
-    public function region()
+    public function getRegion()
     {
         $req = new CompanionRequest([
             'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/region',
         ]);
-    
-        return $this->get($req)->getJson();
+        
+        $res = $this->get($req)->getJson();
+        SightConfig::save('region', $res->region);
+        
+        return $res;
     }
     
     /**
-     * Regenerate a token
+     * refresh token (you get a new one)
      *
-     * Methods: post
+     * @POST("login/token")
      */
-    public function token()
+    public function postToken()
     {
         $req = new CompanionRequest([
             'uri'      => CompanionRequest::URI,
@@ -111,12 +128,13 @@ class Login extends Sight
     }
     
     /**
-     * Methods: post
+     * todo - investigate
+     * @POST("login/advertising-id")
      */
     public function advertisingId()
     {
         $req = new CompanionRequest([
-            'uri'      => CompanionRequest::URI_EU,
+            'uri'      => SightConfig::get('region'),
             'endpoint' => '/login/advertising-id',
             'json'     => [
                 // maintain a static UUID?
@@ -129,12 +147,13 @@ class Login extends Sight
     }
     
     /**
-     * Methods: post
+     * todo - investigate
+     * @POST("login/fcm-token")
      */
     public function fcmToken()
     {
         $req = new CompanionRequest([
-            'uri'      => CompanionRequest::URI_EU,
+            'uri'      => SightConfig::get('region'),
             'endpoint' => '/login/fcm-token',
             'json'     => [
                 // eIFDHHYjFIM:APA91bFqbkO67xob2YlF-nEWZaG2vwJ_WcxLnpJbcMw415vvF-xtNNtQGRm8V28D67Bny7DXb-Acagx7MfBXob1F510hNKdLoA3sWWfNZ04oJSV2wCvjV1L1XfImG9pn7uXtOdYONNbl
