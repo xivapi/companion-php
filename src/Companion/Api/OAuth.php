@@ -4,18 +4,20 @@ namespace Companion\Api;
 
 use Companion\Config\SightConfig;
 use Companion\Http\Sight;
-use Companion\Models\SightRequest;
-use GuzzleHttp\Psr7\Response;
+use Companion\Models\CompanionRequest;
 use Ramsey\Uuid\Uuid;
 use phpseclib\Crypt\RSA;
 
+/**
+ * APK Java class: common/a/g.java
+ * Based on libpompom implementation: https://github.com/Minoost/libpompom-sharp
+ * - https://github.com/Minoost/libpompom-sharp/blob/master/libpompom.sharp/Api/Session.cs
+ * - https://github.com/Minoost/libpompom-sharp/blob/master/libpompom.sharp/Models/Response/Session.cs
+ */
 class OAuth extends Sight
 {
     const PLATFORM_IOS      = 1;
     const PLATFORM_ANDROID  = 2;
-    const SQEX_AUTH_URI     = "https://secure.square-enix.com/oauth/oa/oauthauth";
-    const SQEX_LOGIN_URI    = "https://secure.square-enix.com/oauth/oa/oauthlogin";
-    const OAUTH_CALLBACK    = 'https://companion.finalfantasyxiv.com/api/0/auth/callback';
     
     private $userId;
     private $token;
@@ -35,9 +37,9 @@ class OAuth extends Sight
         $this->uri = $this->getOAuthUri();
 
         echo "\n";
-        echo "Login at the following url: \n";
-        echo self::SQEX_AUTH_URI .'?'. http_build_query($this->uri);
-        echo "\nThen the token: {$this->token->token} will work";
+        echo "Login at the following url: \n\n";
+        echo CompanionRequest::SQEX_AUTH_URI .'?'. http_build_query($this->uri);
+        echo "\n\nThen the token: {$this->token->token} will work";
         echo "\n";
     }
     
@@ -50,17 +52,17 @@ class OAuth extends Sight
         $rsa->loadKey($pem);
         $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
         $uid = base64_encode($rsa->encrypt($this->userId));
-
-        // send request
-        $req = new SightRequest();
-        $req->setMethod(self::METHOD_POST)
-            ->setEndpoint('/login/token')
-            ->setJson([
-                'platform' => self::PLATFORM_ANDROID, // < THIS IS IMPORTANT
-                'uid' => $uid
-            ]);
         
-        return $this->request($req);
+        $req = new CompanionRequest([
+            'uri'       => CompanionRequest::URI,
+            'endpoint'  => '/login/token',
+            'json'      => [
+                'platform'  => self::PLATFORM_ANDROID, // < THIS IS IMPORTANT
+                'uid'       => $uid
+            ]
+        ]);
+        
+        return $this->post($req)->getJson();
     }
     
     public function getOAuthUri()
@@ -78,7 +80,7 @@ class OAuth extends Sight
         $uid = $this->encryptUserId();
         SightConfig::save('uid', $uid);
         
-        return self::OAUTH_CALLBACK .'?'. http_build_query([
+        return CompanionRequest::OAUTH_CALLBACK .'?'. http_build_query([
             'token'      => $this->token->token,
             'uid'        => $uid,
             'request_id' => Uuid::uuid4()->toString()
@@ -114,6 +116,7 @@ class OAuth extends Sight
      */
     public function OLD__login(string $username, string $password)
     {
+        /*
         $token = TokenGenerator::generate();
         $uid   = SightConfig::get()->uid;
         $rqid  = Uuid::uuid4()->toString();
@@ -132,7 +135,6 @@ class OAuth extends Sight
             ->setQuery($query)
             ->setSquareEnixDomain(true);
     
-        /** @var Response $response */
         $response = $this->response($req);
         
         // grab the location for the next request
@@ -178,11 +180,9 @@ class OAuth extends Sight
             ->setSquareEnixDomain(true)
             ->addHeader('Origin', 'https://secure.square-enix.com')
             ->addHeader('Host', 'secure.square-enix.com')
-            ->addHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
             ->addHeader('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) XIV-Companion for iPhone')
             ->addHeader('Content-Type', 'application/x-www-form-urlencoded');
         
-        /** @var Response $response */
         $this->debug = true;
         $response = $this->response($req);
         

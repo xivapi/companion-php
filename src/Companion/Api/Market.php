@@ -3,17 +3,38 @@
 namespace Companion\Api;
 
 use Companion\Http\Sight;
-use Companion\Models\SightRequest;
+use Companion\Models\CompanionRequest;
 
+/**
+ * Based on: MarketService.java
+ */
 class Market extends Sight
 {
-    public function prices(int $itemId)
+    /**
+     * Methods: delete, patch
+     */
+    public function retainersRack(string $cid, int $itemId)
     {
-        $req = new SightRequest();
-        $req->setMethod(self::METHOD_GET)
-            ->setRegion(self::REGION_EU)
-            ->setEndpoint("/market/items/catalog/{$itemId}");
-        
-        return $this->request($req);
+    
+    }
+    
+    public function itemsCatalogHq(int $itemId)
+    {
+    
+    }
+    
+    public function itemsCatalog(int $itemId)
+    {
+        $req = new CompanionRequest([
+            'uri'      => CompanionRequest::URI_EU,
+            'endpoint' => "/market/items/catalog/{$itemId}",
+        ]);
+    
+        return $this->get($req)->getJson();
+    }
+    
+    public function itemsCategory(int $categoryId)
+    {
+    
     }
 }
