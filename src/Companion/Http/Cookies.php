@@ -10,7 +10,7 @@ class Cookies
     const FILENAME = __DIR__.'/cookie_jar';
     
     /** @var FileCookieJar */
-    private static $jar;
+    private static $jar = null;
     
     public static function get(): CookiesJar
     {
@@ -28,12 +28,13 @@ class Cookies
         $jar = self::get();
         $jar->setCookie($cookie);
         $jar->save(self::FILENAME);
-
+        
         self::$jar = $jar;
     }
     
     public static function clear()
     {
         @unlink(self::FILENAME);
+        self::$jar = null;
     }
 }

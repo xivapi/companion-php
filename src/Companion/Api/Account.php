@@ -30,20 +30,20 @@ class Account extends Sight
      */
     public function login(string $username, string $password)
     {
-        // some clean up
-        Cookies::clear();
-        ID::refresh();
+        $this->cleanup();
         
         // generate a new token and build login uri
         $this->getLoginUrl();
         
         // attempt to auto-login
         $this->autoLoginToProfileAccount($username, $password);
-    
+        
         // authenticate
         if ((new Login())->postAuth()->status !== 200) {
             throw new \Exception('Token status could not be validated');
         }
+        
+        $this->cleanup();
     }
     
     /**
@@ -98,28 +98,32 @@ class Account extends Sight
             'requestId' => ID::get()
         ]))->getBody();
         
-        // todo - convert to: https://github.com/xivapi/companion-php
-        preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
-        $action = trim($matches['action']);
-        preg_match('/(.*)name="_STORED_" value="(?P<stored>[^"]+)">/', $html, $matches);
-        $stored = trim($matches['stored']);
-    
-        // build payload to submit form
-        $formData = [
-            '_STORED_' => $stored,
-            'sqexid'   => $username,
-            'password' => $password,
-        ];
+        // if this response contains "cis_sessid" then we was auto-logged in using cookies
+        // otherwise it's the login form and we need to login to get the cis_sessid
+        if (stripos($html, 'cis_sessid') === false) {
+            // todo - convert to: https://github.com/xivapi/companion-php
+            preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
+            $action = trim($matches['action']);
+            preg_match('/(.*)name="_STORED_" value="(?P<stored>[^"]+)">/', $html, $matches);
+            $stored = trim($matches['stored']);
+            
+            // build payload to submit form
+            $formData = [
+                '_STORED_' => $stored,
+                'sqexid'   => $username,
+                'password' => $password,
+            ];
+            
+            $res = $this->post(new CompanionRequest([
+                'uri'       => CompanionRequest::URI_SE . "/oauth/oa/{$action}",
+                'version'   => '',
+                'requestId' => ID::get(),
+                'form'      => $formData,
+            ]));
+            
+            $html = $res->getBody();
+        }
         
-        $res = $this->post(new CompanionRequest([
-            'uri'       => CompanionRequest::URI_SE . "/oauth/oa/{$action}",
-            'version'   => '',
-            'requestId' => ID::get(),
-            'form'      => $formData,
-        ]));
-        
-        $html = $res->getBody();
-    
         // todo - convert to: https://github.com/xivapi/companion-php
         preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
         $action = html_entity_decode($matches['action']);
@@ -153,11 +157,11 @@ class Account extends Sight
     private function buildLoginUri()
     {
         return CompanionRequest::SQEX_AUTH_URI .'?'. http_build_query([
-            'client_id'     => 'ffxiv_comapp',
-            'lang'          => 'en-us',
-            'response_type' => 'code',
-            'redirect_uri'  => $this->buildCompanionOAuthRedirectUri(),
-        ]);
+                'client_id'     => 'ffxiv_comapp',
+                'lang'          => 'en-us',
+                'response_type' => 'code',
+                'redirect_uri'  => $this->buildCompanionOAuthRedirectUri(),
+            ]);
     }
     
     /**
@@ -176,6 +180,18 @@ class Account extends Sight
                 'token'      => Profile::get('token'),
                 'uid'        => $uid,
                 'request_id' => ID::get(),
-        ]);
+            ]);
+    }
+    
+    /**
+     * Clean up static set data, this is required if you login multiple times during the same PHP runtime.
+     */
+    private function cleanup()
+    {
+        // delete all cookies
+        Cookies::clear();
+        
+        // refresh static ID
+        ID::refresh();
     }
 }
