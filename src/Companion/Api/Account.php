@@ -43,8 +43,6 @@ class Account extends Sight
         // authenticate
         if ((new Login())->postAuth()->status !== 200) {
             throw new \Exception('Token status could not be validated');
-        } else {
-            echo "All good!\n\n";
         }
     }
     
