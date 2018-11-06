@@ -100,11 +100,9 @@ class Account extends Sight
             'requestId' => ID::get()
         ]))->getBody();
         
-        // grab submit action
+        // todo - convert to: https://github.com/xivapi/companion-php
         preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
         $action = trim($matches['action']);
-        
-        // grab _STORED_ value
         preg_match('/(.*)name="_STORED_" value="(?P<stored>[^"]+)">/', $html, $matches);
         $stored = trim($matches['stored']);
     
@@ -123,6 +121,8 @@ class Account extends Sight
         ]));
         
         $html = $res->getBody();
+    
+        // todo - convert to: https://github.com/xivapi/companion-php
         preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
         $action = html_entity_decode($matches['action']);
         preg_match('/(.*)name="cis_sessid" type="hidden" value="(?P<cis_sessid>[^"]+)">/', $html, $matches);
