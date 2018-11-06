@@ -20,11 +20,11 @@ $api = new CompanionApi('character_1');
  * 1) request a token and login
  * 2) Get a list of characters (could skip if you cache CID)
  * 3) Login to a character, this is required and it sets your region domain
- * 4) Confirm logged in character? (may be optional)
+ * 4) Confirm logged in character against DC endpoint
  * 5) Query API!
  */
 
-// request login url
+// login with the profiles username+password
 $api->oAuth()->login();
 
 // Get a list of characters
