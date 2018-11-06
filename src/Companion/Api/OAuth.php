@@ -5,7 +5,8 @@ namespace Companion\Api;
 use Companion\Config\SightConfig;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
-use Ramsey\Uuid\Uuid;
+use Companion\Utils\PBKDF2;
+use Companion\Utils\RequestId;
 use phpseclib\Crypt\RSA;
 
 /**
@@ -23,26 +24,123 @@ class OAuth extends Sight
     private $token;
     private $uri;
     
-    public function login($username, $password)
+    /**
+     * Login to the character that is registered to this config profile
+     */
+    public function login()
     {
+        SightConfig::clearCookies();
+        RequestId::refresh();
+        
         // Generate a new user uuid
-        $this->userId = Uuid::uuid4()->toString();
+        $this->userId = RequestId::generate();
+        SightConfig::save('userId', $this->userId);
         
         // Get a token from SE
         $this->token = $this->getToken();
         SightConfig::save('token', $this->token->token);
-        print_r($this->token);
-
+        SightConfig::save('salt', $this->token->salt);
+        echo "Token: {$this->token->token}\n";
+        
         // Get OAuth URI
         $this->uri = $this->getOAuthUri();
-
-        echo "\n";
-        echo "Login at the following url: \n\n";
-        echo CompanionRequest::SQEX_AUTH_URI .'?'. http_build_query($this->uri);
-        echo "\n\nThen the token: {$this->token->token} will work";
-        echo "\n";
+        echo "Login form URI: {$this->uri}\n";
+        echo "";
+        
+        // attempt to auto-login
+        $this->autoLogin();
+        
+        // authenticate
+        echo "Checking token authentication\n";
+        $login = new Login();
+        $res = $login->postAuth();
+        if ($res->status === 200) {
+            echo "Token status good!\n";
+        } else {
+            throw new \Exception('Token status could not be validated');
+        }
     }
     
+    public function autoLogin()
+    {
+        $username = SightConfig::get('username');
+        $password = SightConfig::get('password');
+
+        if (!$username || !$password) {
+            throw new \Exception("Username and/or Password not set in profile config.");
+        }
+        
+        $html = $this->get(new CompanionRequest([
+            'uri'       => $this->uri,
+            'version'   => '',
+            'requestId' => RequestId::get()
+        ]))->getBody();
+        
+        // grab submit action
+        echo "Parsing login form for _STORED_ CSRF token ...\n";
+        preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
+        $action = trim($matches['action']);
+        
+        // grab _STORED_ value
+        preg_match('/(.*)name="_STORED_" value="(?P<stored>[^"]+)">/', $html, $matches);
+        $stored = trim($matches['stored']);
+    
+        // build payload to submit form
+        $formData = [
+            '_STORED_' => $stored,
+            'sqexid'   => $username,
+            'password' => $password,
+        ];
+        
+        echo "Submitting login details ...\n";
+        $res = $this->post(new CompanionRequest([
+            'uri'       => CompanionRequest::URI_SE . "/oauth/oa/{$action}",
+            'version'   => '',
+            'requestId' => RequestId::get(),
+            'form'      => $formData,
+        ]));
+        
+        if ($res->getStatusCode() !== 200) {
+            die("!!! SE IS DOWN AGAIN, FFS");
+        }
+        
+        $html = $res->getBody();
+        
+        preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
+        $action = html_entity_decode($matches['action']);
+        preg_match('/(.*)name="cis_sessid" type="hidden" value="(?P<cis_sessid>[^"]+)">/', $html, $matches);
+        $cis_sessid = trim($matches['cis_sessid']);
+        echo "POST: {$action}\n";
+        
+        $formData = [
+            'cis_sessid' => $cis_sessid,
+            'provision'  => '', // ??? - Don't know what this is but doesn't seem to matter
+            '_c'         => 1   // ??? - Don't know what this is but doesn't seem to matter
+        ];
+        
+        echo "Confirming authentication with companion api on uri: $action\n";
+        
+        // submit to companion to confirm cis_sessid
+        $req = new CompanionRequest([
+            'uri'       => $action,
+            'form'      => $formData,
+            'version'   => '',
+            'requestId' => RequestId::get(),
+            'return202' => true,
+        ]);
+        
+        // this will be another form with some other bits that the app just forcefully submits via js
+        if ($this->post($req)->getStatusCode() == 202) {
+            echo "Login confirmed, woop. Now onto the good stuff.\n\n";
+        } else {
+            throw new \Exception('Login status could not be validated.');
+        }
+    }
+    
+    /**
+     * Get a valid token + salt from SE
+     * @POST("/login/token")
+     */
     public function getToken()
     {
         // encrypt user id
@@ -56,6 +154,7 @@ class OAuth extends Sight
         $req = new CompanionRequest([
             'uri'       => CompanionRequest::URI,
             'endpoint'  => '/login/token',
+            'requestId' => RequestId::get(),
             'json'      => [
                 'platform'  => self::PLATFORM_ANDROID, // < THIS IS IMPORTANT
                 'uid'       => $uid
@@ -65,137 +164,31 @@ class OAuth extends Sight
         return $this->post($req)->getJson();
     }
     
+    /**
+     * Build the Login uri
+     */
     public function getOAuthUri()
     {
-        return [
+        return CompanionRequest::SQEX_AUTH_URI .'?'. http_build_query([
             'client_id'     => 'ffxiv_comapp',
             'lang'          => 'en-us',
             'response_type' => 'code',
             'redirect_uri'  => $this->buildOAuthRedirectUri(),
-        ];
+        ]);
     }
     
+    /**
+     * Build the login redirect uri
+     */
     public function buildOAuthRedirectUri()
     {
-        $uid = $this->encryptUserId();
+        $uid = PBKDF2::encrypt($this->userId, $this->token->salt);
         SightConfig::save('uid', $uid);
         
         return CompanionRequest::OAUTH_CALLBACK .'?'. http_build_query([
             'token'      => $this->token->token,
             'uid'        => $uid,
-            'request_id' => Uuid::uuid4()->toString()
+            'request_id' => RequestId::get(),
         ]);
-    }
-    
-    public function encryptUserId()
-    {
-        return bin2hex(
-            hash_pbkdf2("sha1", $this->userId, $this->token->salt, 1000, 1024/8, true)
-        );
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /**
-     * Login to an account, this will register the token for usage.
-     *
-     * @param string $username
-     * @param string $password
-     * @throws \Exception
-     */
-    public function OLD__login(string $username, string $password)
-    {
-        /*
-        $token = TokenGenerator::generate();
-        $uid   = SightConfig::get()->uid;
-        $rqid  = Uuid::uuid4()->toString();
-        
-        // request login form
-        $query = [
-            'client_id'     => 'ffxiv_comapp',
-            'lang'          => 'en-gb',
-            'response_type' => 'code',
-            'redirect_uri'  => "https://companion.finalfantasyxiv.com/api/0/auth/callback?token={$token}&uid={$uid}&request_id={$rqid}"
-        ];
-        
-        $req = new SightRequest();
-        $req->setMethod(self::METHOD_GET)
-            ->setEndpoint('/oauth/oa/oauthauth')
-            ->setQuery($query)
-            ->setSquareEnixDomain(true);
-    
-        $response = $this->response($req);
-        
-        // grab the location for the next request
-        $location = $response->getHeaders()['Location'][0];
-        $location = str_ireplace('https://secure.square-enix.com', null, $location);
-        
-        // continue onto location server provides us
-        $req = new SightRequest();
-        $req->setMethod(self::METHOD_GET)
-            ->setEndpoint($location)
-            ->setQuery($query)
-            ->setSquareEnixDomain(true);
-        
-        // grab the referer, will need it later on
-        $referer = $req->getUri();
-        
-        // grab login form html
-        $html = $this->request($req);
-
-        // grab submit action
-        preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
-        $action = parse_url($matches['action']);
-        $postEndpoint = $action['path'];
-        parse_str($action['query'], $postQuery);
-        
-        // grab _STORED_ value
-        preg_match('/(.*)name="_STORED_" value="(?P<stored>[^"]+)">/', $html, $matches);
-        $stored = $matches['stored'];
-
-        // build payload to submit form
-        $formData = [
-            '_STORED_' => '3df06e5f47798101ac62bce3c650e276ef93bf147f79411483c2d3fcd790cbb49ecb2d0243ff0f295717fd1c29c94a512a68ed86f8b11af045f5bfe419922d10ef0ea1798fa8b184b39170e7df9f3757e480023aa2c99a68aa9b2ce40554b9571c0d7f2f93cba8c9cdf40e3bd7237113e6',
-            'sqexid'   => $username,
-            'password' => urlencode($password),
-        ];
-        
-        // build form submit request
-        $req = new SightRequest();
-        $req->setMethod(self::METHOD_POST)
-            ->setEndpoint("/oauth/oa/{$postEndpoint}")
-            ->setQuery($postQuery)
-            ->setFormData($formData)
-            ->setSquareEnixDomain(true)
-            ->addHeader('Origin', 'https://secure.square-enix.com')
-            ->addHeader('Host', 'secure.square-enix.com')
-            ->addHeader('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) XIV-Companion for iPhone')
-            ->addHeader('Content-Type', 'application/x-www-form-urlencoded');
-        
-        $this->debug = true;
-        $response = $this->response($req);
-        
-        print_r($response->getHeaders());
-        print_r((string)$response->getBody());
-        
-        die;
-
-        /*
-        // if 200, save the token
-        if ($response->getStatusCode() == 200) {
-            SightConfig::save('token', $token);
-        }
-        */
     }
 }

@@ -3,6 +3,7 @@
 namespace Companion\Models;
 
 use Companion\Config\SightConfig;
+use Companion\Utils\RequestId;
 use GuzzleHttp\RequestOptions;
 use Ramsey\Uuid\Uuid;
 
@@ -19,7 +20,10 @@ class CompanionRequest
     public $uri;
     public $endpoint;
     public $version;
-    public $redirect  = true;
+    public $redirect  = [
+        'referer' => true,
+        'tracked_redirects' => true
+    ];
     public $return202 = false;
     public $headers   = [];
     public $json      = [];
@@ -32,19 +36,24 @@ class CompanionRequest
         $config            = (Object)$config;
         $this->uri         = $config->uri;
         $this->version     = $config->version ?? self::VERSION;
-        $this->endpoint    = $config->endpoint;
+        $this->endpoint    = $config->endpoint ?? null;
         $this->json        = $config->json ?? [];
         $this->form        = $config->form ?? [];
         $this->query       = $config->query ?? [];
         $this->cookies     = $config->cookies ?? [];
         $this->redirect    = $config->redirect ?? $this->redirect;
         $this->return202   = $config->return202 ?? $this->return202;
+        
+        // if we're on SE secure domain, remove version
+        if (stripos($this->uri, self::URI_SE)) {
+            $this->version = null;
+        }
     
         $this->headers['Accept']          = '*/*';
         $this->headers['Accept-Language'] = 'en-gb';
-        $this->headers['domain-type']     = 'global';
+        $this->headers['Accept-Encoding'] = 'br, gzip, deflate';
         $this->headers['User-Agent']      = 'ffxivcomapp-e/1.0.3.0 CFNetwork/974.2.1 Darwin/18.0.0';
-        $this->headers['request-id']      = $config->requestId ?? strtoupper(Uuid::uuid4()->toString());
+        $this->headers['request-id']      = $config->requestId ?? RequestId::generate();
         $this->headers['token']           = SightConfig::get('token');
         $this->headers                    = array_merge($this->headers, $config->headers ?? []);
     }
@@ -56,13 +65,27 @@ class CompanionRequest
     
     public function getOptions()
     {
-        return [
+        $options = [
+            // force redirect check on as this could be false
+            RequestOptions::ALLOW_REDIRECTS => $this->redirect
+        ];
+
+        $map = [
             RequestOptions::HEADERS         => $this->headers,
             RequestOptions::JSON            => $this->json,
             RequestOptions::FORM_PARAMS     => $this->form,
             RequestOptions::QUERY           => $this->query,
-            RequestOptions::ALLOW_REDIRECTS => $this->redirect,
             RequestOptions::COOKIES         => $this->cookies,
         ];
+        
+        foreach ($map as $requestOption => $requestValues) {
+            if (empty($requestValues)) {
+                continue;
+            }
+            
+            $options[$requestOption] = $requestValues;
+        }
+        
+        return $options;
     }
 }

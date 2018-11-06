@@ -13,36 +13,45 @@ $option = isset($argv[1]) ? trim($argv[1]) : false;
 $arg1   = isset($argv[2]) ? trim($argv[2]) : false;
 
 // do something
-$api = new CompanionApi('character_2');
+$api = new CompanionApi('character_1');
 
 /**
  * The order of this is important:
- * 1) Login
- * 2) get a list of characters (unsure if character id changes)
- * 3) login with a character, this returns your DC region
- * 4) Get current active character
- * 5) Get region, think to confirm?
- * 6) Get info, eg prices
+ * 1) request a token and login
+ * 2) Get a list of characters (could skip if you cache CID)
+ * 3) Login to a character, this is required and it sets your region domain
+ * 4) Confirm logged in character? (may be optional)
+ * 5) Query API!
  */
 
 // request login url
-#$api->oAuth()->login('[user]', '[pass]');
+$api->oAuth()->login();
 
 // Get a list of characters
-#print_r( $api->login()->characters() );
+echo "Getting a list of characters\n";
+foreach ($api->login()->getCharacters()->accounts[0]->characters as $character) {
+    echo "- {$character->cid} :: {$character->name} ({$character->world})\n";
+}
 
 // Login with a character, this should return the region
-#print_r( $api->login()->characters('96a2598597454ad1_99638') );
+echo "log-in in with a character\n";
+$api->login()->loginCharacter('56e49ab219b0597e_01648');
 
 // Get current logged in character
-print_r( $api->login()->getCharacter() );
-sleep(1);
+echo "Confirming logged in character ...\n";
+$character = $api->login()->getCharacter()->character;
+echo "- Logged in as: {$character->name} ({$character->world}) \n";
 
-// not sure ...
-print_r( $api->login()->getRegion() );
-sleep(1);
+// acquire kupo nuts
+echo "Requesting kupo nuts \n";
+$api->payments()->acquirePoints();
+
+// get currency status (num of kupo nutz)
+echo "Confirming kupo nuts status \n";
+print_r( "Nuts: ". count($api->payments()->getCurrencyStatus()->kupoNuts) . "\n\n");
 
 // Get item prices for item id 5 (Earth Shard)
-print_r( $api->market()->getItemMarketListings(5) );
+echo "Getting market info\n";
+print_r( count($api->market()->getItemMarketListings(5)->entries) ." Earth Shard listings for sale" );
 
 die;

@@ -3,13 +3,12 @@
 namespace Companion;
 
 use Companion\Api\AddressBook;
-use Companion\Api\ChatRooms;
+use Companion\Api\ChatRoom;
 use Companion\Api\Item;
 use Companion\Api\Login;
 use Companion\Api\Market;
 use Companion\Api\OAuth;
 use Companion\Api\Payments;
-use Companion\Api\Points;
 use Companion\Api\Report;
 use Companion\Api\Schedule;
 use Companion\Config\SightConfig;
@@ -33,7 +32,7 @@ class CompanionApi
 
     public function chatRooms()
     {
-        return new ChatRooms();
+        return new ChatRoom();
     }
 
     public function item()
@@ -54,11 +53,6 @@ class CompanionApi
     public function payments()
     {
         return new Payments();
-    }
-
-    public function points()
-    {
-        return new Points();
     }
 
     public function report()

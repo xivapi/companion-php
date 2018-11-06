@@ -5,7 +5,7 @@ namespace Companion\Api;
 use Companion\Config\SightConfig;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
-use Ramsey\Uuid\Uuid;
+use Companion\Utils\RequestId;
 
 /**
  * Based on: LoginService.java
@@ -22,23 +22,21 @@ class Login extends Sight
     }
     
     /**
+     * Note: The `request_id` MUST BE THE SAME as the one used during the oauth callback uri
+     *       which is called in: buildOAuthRedirectUri
+     *
      * @POST("login/auth")
      */
     public function postAuth()
     {
-        // unsure if request-id and query request_id actually need to match..
-        $uuid = Uuid::uuid4()->toString();
-        
         $req = new CompanionRequest([
             'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/auth',
-            'headers'  => [
-                'request-id' => $uuid,
-            ],
+            'requestId' => RequestId::get(),
             'query'    => [
                 'token'      => SightConfig::get('token'),
                 'uid'        => SightConfig::get('uid'),
-                'request_id' => $uuid
+                'request_id' => RequestId::get()
             ],
         ]);
         
@@ -50,34 +48,20 @@ class Login extends Sight
      */
     public function getCharacter()
     {
+        // log the character into the regional data center endpoint
         $req = new CompanionRequest([
-            'uri'      => CompanionRequest::URI,
-            'endpoint' => '/login/character',
+            'uri'      => SightConfig::get('region'),
+            'endpoint' => "/login/character",
         ]);
         
         return $this->get($req)->getJson();
     }
     
     /**
-     * If you provide the character id, you will login as this character.
-     *
      * @GET("login/characters")
-     * @POST("login/characters/{characterId}")
      */
-    public function getCharacters(string $characterId = null)
+    public function getCharacters()
     {
-        if ($characterId) {
-            $req = new CompanionRequest([
-                'uri'      => CompanionRequest::URI,
-                'endpoint' => "/login/characters/{$characterId}",
-                'json'     => [
-                    'appLocaleType' => 'EU' // not sure what this is
-                ]
-            ]);
-            
-            return $this->post($req)->getJson();
-        }
-        
         $req = new CompanionRequest([
             'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/characters',
@@ -87,9 +71,31 @@ class Login extends Sight
     }
     
     /**
-     * Get the uri region for the logged in character, this
-     * will save to the config and data center specific requests will
-     * use this region endpoint
+     * This will return the data center regional domain and log-ins this specific character
+     *
+     * @POST("login/characters/{characterId}")
+     */
+    public function loginCharacter(string $characterId = null)
+    {
+        // log the character into the base endpoint
+        $req = new CompanionRequest([
+            'uri'      => CompanionRequest::URI,
+            'endpoint' => "/login/characters/{$characterId}",
+            'json'     => [
+                'appLocaleType' => 'EU' // not sure what this is, or if its needed
+            ]
+        ]);
+    
+        $res = $this->post($req)->getJson();
+        SightConfig::save('region', substr($res->region, 0, -1));
+        
+        // call get character on DC as this will log it in.
+        $this->getCharacter();
+    }
+    
+    /**
+     * Get the uri region for the logged in character.
+     * Sometimes returns blank... Unsure why
      *
      * @GET("login/region")
      */
@@ -100,10 +106,7 @@ class Login extends Sight
             'endpoint' => '/login/region',
         ]);
         
-        $res = $this->get($req)->getJson();
-        SightConfig::save('region', $res->region);
-        
-        return $res;
+        return $this->get($req)->getJson();
     }
     
     /**
@@ -137,17 +140,22 @@ class Login extends Sight
             'uri'      => SightConfig::get('region'),
             'endpoint' => '/login/advertising-id',
             'json'     => [
-                // maintain a static UUID?
+                // This UUID always seems to be the same
                 'advertisingId'     => 'CDC61D75-5F00-4516-B6A5-F353F1C03179',
                 'isTrackingEnabled' => 1,
             ]
         ]);
     
-        return $this->post($req)->getJson();
+        return $this->post($req);
     }
     
     /**
-     * todo - investigate
+     * FCM Token = Firebase Cloud Messaging token - Used for App Notifications
+     * - https://firebase.google.com/docs/cloud-messaging
+     *
+     * Figured out via java: ffxiv/sight/e/o.java
+     *
+     * No response body for this request
      * @POST("login/fcm-token")
      */
     public function fcmToken()
@@ -156,11 +164,10 @@ class Login extends Sight
             'uri'      => SightConfig::get('region'),
             'endpoint' => '/login/fcm-token',
             'json'     => [
-                // eIFDHHYjFIM:APA91bFqbkO67xob2YlF-nEWZaG2vwJ_WcxLnpJbcMw415vvF-xtNNtQGRm8V28D67Bny7DXb-Acagx7MfBXob1F510hNKdLoA3sWWfNZ04oJSV2wCvjV1L1XfImG9pn7uXtOdYONNbl
-                'fcmToken' => 'not sure what to do here?'
+                'fcmToken' => ''
             ]
         ]);
     
-        return $this->post($req)->getJson();
+        return $this->post($req);
     }
 }

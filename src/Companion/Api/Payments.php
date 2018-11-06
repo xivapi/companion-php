@@ -2,7 +2,9 @@
 
 namespace Companion\Api;
 
+use Companion\Config\SightConfig;
 use Companion\Http\Sight;
+use Companion\Models\CompanionRequest;
 
 /**
  * Based on: PaymentService.java
@@ -10,11 +12,17 @@ use Companion\Http\Sight;
 class Payments extends Sight
 {
     /**
+     * No, you can't spam this for free nuts. I tried.
      * @POST("points/kupo-nuts")
      */
     public function acquirePoints()
     {
+        $req = new CompanionRequest([
+            'uri'      => SightConfig::get('region'),
+            'endpoint' => "/points/kupo-nuts",
+        ]);
     
+        return $this->post($req)->getJson();
     }
     
     /**
@@ -62,7 +70,12 @@ class Payments extends Sight
      */
     public function getCurrencyStatus()
     {
-    
+        $req = new CompanionRequest([
+            'uri'      => SightConfig::get('region'),
+            'endpoint' => "/points/status",
+        ]);
+        
+        return $this->get($req)->getJson();
     }
     
     /**
