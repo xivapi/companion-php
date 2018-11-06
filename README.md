@@ -29,7 +29,7 @@ Once initialized, to interact with the Companion API you need to authenticate yo
 - **Manual** - Ask the library to generate a login URL for you. This Url is an official Square-Enix Secure URL (the exact one the Companion App presents to you) which you can login to and authenticate your token.  
 - **Auto-Login** - Provide the library your Square-Enix Username+Password and it will automatically login to the app for you and authenticate your token.  
   
-### Manual
+### Login - Manual
 
 ```php
 use Companion\CompanionApi; 
@@ -67,7 +67,7 @@ if ($api->Login()->postAuth()->status === 200) {
 }
 ```
 
-### Automatic
+### Login Automatic
 
 To smooth out automation, you can have the library log into the companion app for you, like so:
 
@@ -137,4 +137,6 @@ You can find all the PHP logic for these API endpoints in: the `Companion/Api` f
 
 ---
 
-Library by: Josh Freeman (Vekien on Discord: (XIVAPI) https://discord.gg/MFFVHWC) - License is MIT, do whatever you want with it :)
+**Library by:** Josh Freeman (Vekien on Discord: (XIVAPI) https://discord.gg/MFFVHWC)
+
+License is MIT, do whatever you want with it :)
