@@ -34,7 +34,6 @@ Once initialized, to interact with the Companion API you need to authenticate yo
 ```php
 use Companion\CompanionApi; 
 
-// do something
 $api      = new CompanionApi('character_profile_name');
 $loginUrl = $api->Account()->getLoginUrl();
 $token    = $api->Profile()->getToken();
