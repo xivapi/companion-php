@@ -1,4 +1,4 @@
 .idea
 vendor
-src/Companion/Config/config.json
-src/Companion/Config/cookies*
+src/Companion/Config/profile.json
+src/Companion/Http/cookie_jar

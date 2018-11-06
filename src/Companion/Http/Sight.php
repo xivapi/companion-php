@@ -2,7 +2,7 @@
 
 namespace Companion\Http;
 
-use Companion\Config\SightConfig;
+use Companion\Config\Profile;
 use Companion\Models\CompanionRequest;
 use Companion\Models\CompanionResponse;
 use GuzzleHttp\Client;
@@ -39,11 +39,14 @@ class Sight
     {
         return $this->request('patch', $request);
     }
-
+    
+    /**
+     * Send a request to the Companion API
+     */
     private function request(string $method, CompanionRequest $request): CompanionResponse
     {
         $client = new Client([
-            'cookies' => SightConfig::getCookies(),
+            'cookies' => Cookies::get(),
             'timeout' => 15,
             'verify'  => false,
         ]);

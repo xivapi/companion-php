@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\SightConfig;
+use Companion\Config\Profile;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 
@@ -18,7 +18,7 @@ class Payments extends Sight
     public function acquirePoints()
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => "/points/kupo-nuts",
         ]);
     
@@ -71,7 +71,7 @@ class Payments extends Sight
     public function getCurrencyStatus()
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => "/points/status",
         ]);
         

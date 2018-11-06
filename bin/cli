@@ -9,14 +9,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Companion\CompanionApi;
 
-$option = isset($argv[1]) ? trim($argv[1]) : false;
-$arg1   = isset($argv[2]) ? trim($argv[2]) : false;
-
-// do something
-$api = new CompanionApi('character_1');
-
 /**
- * The order of this is important:
+ * The order of logging in is important:
  * 1) request a token and login
  * 2) Get a list of characters (could skip if you cache CID)
  * 3) Login to a character, this is required and it sets your region domain
@@ -24,8 +18,23 @@ $api = new CompanionApi('character_1');
  * 5) Query API!
  */
 
+
+// do something
+$api = new CompanionApi('character_profile_name');
+
+/*
+$loginUrl = $api->Account()->getLoginUrl();
+$token    = $api->Profile()->getToken();
+echo "Login to the url: {$loginUrl} and then the token {$token} will work";
+*/
+
 // login with the profiles username+password
-$api->oAuth()->login();
+// once this has been done once, you don't need to do it for 24 hours for the same profile
+//$api->Account()->login('', '');
+
+//
+// Get API-ing!
+//
 
 // Get a list of characters
 echo "Getting a list of characters\n";

@@ -2,8 +2,8 @@
 
 namespace Companion\Models;
 
-use Companion\Config\SightConfig;
-use Companion\Utils\RequestId;
+use Companion\Config\Profile;
+use Companion\Utils\ID;
 use GuzzleHttp\RequestOptions;
 use Ramsey\Uuid\Uuid;
 
@@ -53,8 +53,8 @@ class CompanionRequest
         $this->headers['Accept-Language'] = 'en-gb';
         $this->headers['Accept-Encoding'] = 'br, gzip, deflate';
         $this->headers['User-Agent']      = 'ffxivcomapp-e/1.0.3.0 CFNetwork/974.2.1 Darwin/18.0.0';
-        $this->headers['request-id']      = $config->requestId ?? RequestId::generate();
-        $this->headers['token']           = SightConfig::get('token');
+        $this->headers['request-id']      = $config->requestId ?? ID::uuid();
+        $this->headers['token']           = Profile::get('token');
         $this->headers                    = array_merge($this->headers, $config->headers ?? []);
     }
     

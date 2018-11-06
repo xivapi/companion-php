@@ -7,60 +7,66 @@ use Companion\Api\ChatRoom;
 use Companion\Api\Item;
 use Companion\Api\Login;
 use Companion\Api\Market;
-use Companion\Api\OAuth;
+use Companion\Api\Account;
 use Companion\Api\Payments;
 use Companion\Api\Report;
 use Companion\Api\Schedule;
-use Companion\Config\SightConfig;
+use Companion\Config\Profile;
 
 class CompanionApi
 {
     public function __construct(string $profile)
     {
-        SightConfig::setProfile($profile);
+        Profile::setProfile($profile);
+        Profile::init();
     }
     
-    public function oAuth()
+    public function Profile()
     {
-        return new OAuth();
+        return new Profile();
     }
     
-    public function addressBook()
+    public function Account()
+    {
+        return new Account();
+    }
+    
+    public function AddressBook()
     {
         return new AddressBook();
     }
 
-    public function chatRooms()
+    public function ChatRooms()
     {
         return new ChatRoom();
     }
 
-    public function item()
+    public function Item()
     {
         return new Item();
     }
 
-    public function login()
+    public function Login()
     {
         return new Login();
     }
 
-    public function market()
+    public function Market()
     {
         return new Market();
     }
 
-    public function payments()
+    public function Payments()
     {
         return new Payments();
     }
 
-    public function report()
+    public function Report()
     {
         return new Report();
     }
 
-    public function schedule()
+    public function Schedule()
     {
         return new Schedule();
     }

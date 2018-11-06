@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\SightConfig;
+use Companion\Config\Profile;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 
@@ -18,7 +18,7 @@ class AddressBook extends Sight
     public function deleteBlockList(array $json = [])
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => "/address-book/blocklist",
         ]);
     
@@ -32,7 +32,7 @@ class AddressBook extends Sight
     public function getAddressBook(int $updatedAt = null)
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => "/address-book",
         ]);
     
@@ -46,7 +46,7 @@ class AddressBook extends Sight
     public function getCharacter(string $characterId, int $updatedAt = null)
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => "/address-book/{$characterId}/profile",
         ]);
     
@@ -60,7 +60,7 @@ class AddressBook extends Sight
     public function postBlockList(array $json = [])
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => "/address-book/blocklist",
         ]);
         

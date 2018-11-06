@@ -8,8 +8,8 @@
     "require": {
         "guzzlehttp/guzzle": "~6.0",
         "ramsey/uuid": "^3.8",
-        "paquettg/php-html-parser": "^1.7",
-        "phpseclib/phpseclib": "^2.0"
+        "phpseclib/phpseclib": "^2.0",
+        "rct567/dom-query": "^0.6.2"
     },
     "autoload": {
         "psr-0": {

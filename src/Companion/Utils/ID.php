@@ -9,7 +9,7 @@ use Ramsey\Uuid\Uuid;
  * between several different endpoints, if you need a
  * static request id, use this class as: StaticRequestId()
  */
-class RequestId
+class ID
 {
     /** @var string */
     private static $id = null;
@@ -17,7 +17,7 @@ class RequestId
     /**
      * Generate a request UUID
      */
-    public static function generate(): string
+    public static function uuid(): string
     {
         return strtoupper(Uuid::uuid4()->toString());
     }
@@ -27,7 +27,7 @@ class RequestId
      */
     public static function refresh()
     {
-        self::$id = self::generate();
+        self::$id = self::uuid();
     }
     
     /**

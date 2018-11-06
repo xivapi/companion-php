@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\SightConfig;
+use Companion\Config\Profile;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 
@@ -43,7 +43,7 @@ class Market extends Sight
     public function getItemMarketListings(int $itemId)
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => "/market/items/catalog/{$itemId}",
         ]);
     

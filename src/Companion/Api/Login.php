@@ -2,10 +2,10 @@
 
 namespace Companion\Api;
 
-use Companion\Config\SightConfig;
+use Companion\Config\Profile;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
-use Companion\Utils\RequestId;
+use Companion\Utils\ID;
 
 /**
  * Based on: LoginService.java
@@ -32,11 +32,11 @@ class Login extends Sight
         $req = new CompanionRequest([
             'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/auth',
-            'requestId' => RequestId::get(),
+            'requestId' => ID::get(),
             'query'    => [
-                'token'      => SightConfig::get('token'),
-                'uid'        => SightConfig::get('uid'),
-                'request_id' => RequestId::get()
+                'token'      => Profile::get('token'),
+                'uid'        => Profile::get('uid'),
+                'request_id' => ID::get()
             ],
         ]);
         
@@ -50,7 +50,7 @@ class Login extends Sight
     {
         // log the character into the regional data center endpoint
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => "/login/character",
         ]);
         
@@ -87,7 +87,7 @@ class Login extends Sight
         ]);
     
         $res = $this->post($req)->getJson();
-        SightConfig::save('region', substr($res->region, 0, -1));
+        Profile::set('region', substr($res->region, 0, -1));
         
         // call get character on DC as this will log it in.
         $this->getCharacter();
@@ -122,7 +122,7 @@ class Login extends Sight
             'json'     => [
                 // not sure if this has to be the same UID or a new one
                 // if it's a new one, need userId + salt
-                'uid'       => SightConfig::get('uid'),
+                'uid'       => Profile::get('uid'),
                 'platform'  => OAuth::PLATFORM_ANDROID,
             ]
         ]);
@@ -137,7 +137,7 @@ class Login extends Sight
     public function advertisingId()
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => '/login/advertising-id',
             'json'     => [
                 // This UUID always seems to be the same
@@ -161,7 +161,7 @@ class Login extends Sight
     public function fcmToken()
     {
         $req = new CompanionRequest([
-            'uri'      => SightConfig::get('region'),
+            'uri'      => Profile::get('region'),
             'endpoint' => '/login/fcm-token',
             'json'     => [
                 'fcmToken' => ''

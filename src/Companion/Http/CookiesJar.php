@@ -5,7 +5,7 @@ namespace Companion\Http;
 use GuzzleHttp\Cookie\FileCookieJar;
 use GuzzleHttp\Cookie\SetCookie;
 
-class SightCookieJar extends FileCookieJar
+class CookiesJar extends FileCookieJar
 {
     public function setCookie(SetCookie $cookie)
     {
