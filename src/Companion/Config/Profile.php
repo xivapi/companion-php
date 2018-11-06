@@ -18,7 +18,7 @@ class Profile
     {
         // if no config, create one from dist
         if (!file_exists(self::CONFIG_FILE)) {
-            self::save('created', date('Y-m-d H:i:s'));
+            self::set('created', date('Y-m-d H:i:s'));
         }
         
         self::load();
