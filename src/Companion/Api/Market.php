@@ -33,7 +33,12 @@ class Market extends Sight
      */
     public function getItemMarketHqListings(int $itemId)
     {
+        $req = new CompanionRequest([
+            'uri'      => Profile::get('region'),
+            'endpoint' => "/market/items/catalog/{$itemId}/hq",
+        ]);
     
+        return $this->get($req)->getJson();
     }
     
     /**
@@ -55,7 +60,12 @@ class Market extends Sight
      */
     public function getMarketListingsByCategory(int $categoryId)
     {
+        $req = new CompanionRequest([
+            'uri'      => Profile::get('region'),
+            'endpoint' => "/market/items/category/{$categoryId}",
+        ]);
     
+        return $this->get($req)->getJson();
     }
     
     /**
@@ -63,7 +73,12 @@ class Market extends Sight
      */
     public function getRetainerInfo(string $cid)
     {
+        $req = new CompanionRequest([
+            'uri'      => Profile::get('region'),
+            'endpoint' => "/market/retainers/{$cid}",
+        ]);
     
+        return $this->get($req)->getJson();
     }
     
     /**
@@ -71,7 +86,12 @@ class Market extends Sight
      */
     public function getTransactionHistory(int $catalogId)
     {
+        $req = new CompanionRequest([
+            'uri'      => Profile::get('region'),
+            'endpoint' => "market/items/history/catalog/{$catalogId}",
+        ]);
     
+        return $this->get($req)->getJson();
     }
     
     /**

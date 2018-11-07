@@ -82,7 +82,8 @@ class Login extends Sight
             'uri'      => CompanionRequest::URI,
             'endpoint' => "/login/characters/{$characterId}",
             'json'     => [
-                'appLocaleType' => 'EU' // not sure what this is, or if its needed
+                // This is the language of your app
+                'appLocaleType' => 'EU'
             ]
         ]);
     
@@ -123,7 +124,7 @@ class Login extends Sight
                 // not sure if this has to be the same UID or a new one
                 // if it's a new one, need userId + salt
                 'uid'       => Profile::get('uid'),
-                'platform'  => OAuth::PLATFORM_ANDROID,
+                'platform'  => Account::PLATFORM_ANDROID,
             ]
         ]);
     
