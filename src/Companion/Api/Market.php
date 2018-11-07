@@ -88,7 +88,7 @@ class Market extends Sight
     {
         $req = new CompanionRequest([
             'uri'      => Profile::get('region'),
-            'endpoint' => "market/items/history/catalog/{$catalogId}",
+            'endpoint' => "/market/items/history/catalog/{$catalogId}",
         ]);
     
         return $this->get($req)->getJson();
