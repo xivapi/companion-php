@@ -7,9 +7,11 @@ class Profile
     const CONFIG_FILE = __DIR__ .'/profile.json';
     
     /** @var string */
-    private static $name;
+    public static $name;
     /** @var array */
-    private static $config;
+    public static $config;
+    /** @var string */
+    public static $savePath = self::CONFIG_FILE;
     
     /**
      * Initialize profile
@@ -17,7 +19,7 @@ class Profile
     public static function init()
     {
         // if no config, create one from dist
-        if (!file_exists(self::CONFIG_FILE)) {
+        if (!file_exists(self::$savePath)) {
             self::set('created', date('Y-m-d H:i:s'));
         }
         
@@ -46,7 +48,7 @@ class Profile
      */
     public static function load()
     {
-        self::$config = json_decode(file_get_contents(self::CONFIG_FILE), true);
+        self::$config = json_decode(file_get_contents(self::$savePath), true);
     }
     
     /**
@@ -55,11 +57,7 @@ class Profile
     public static function set($field, $value): void
     {
         self::$config[self::$name][$field] = $value;
-        
-        file_put_contents(
-            self::CONFIG_FILE,
-            json_encode(self::$config, JSON_PRETTY_PRINT)
-        );
+        file_put_contents(self::$savePath, json_encode(self::$config, JSON_PRETTY_PRINT));
     }
     
     // --- Non static methods ---
@@ -92,5 +90,11 @@ class Profile
     public function getRegion()
     {
         return Profile::get('region');
+    }
+    
+    public function setSavePath($path)
+    {
+        Profile::$savePath = $path;
+        Profile::init();
     }
 }

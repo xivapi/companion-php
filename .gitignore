@@ -2,3 +2,4 @@
 vendor
 src/Companion/Config/profile.json
 src/Companion/Http/cookie_jar
+bin/profile.json

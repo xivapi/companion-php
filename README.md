@@ -77,6 +77,17 @@ $api->Account()->login('Username', 'Password');
 
 Once this logs in, your token will be saved under the profile name supplied, in this case `character_profile_name` and your token will last 24 hours.
 
+### Setting a profile storage path
+
+By default your profile token/salt/region information will be stored in the library, however if you update the library via composer it will remove this file as it's part of the `.gitignore`, it is recommended for your own application to set a path within your library, eg:
+
+```php
+$api = new CompanionApi('character_profile_name');
+$api->Profile()->setSavePath(__DIR__.'/my/app/profile.json');
+```
+
+This will copy any existing saved profiles over to your new file.
+
 ### Selecting a character
 
 Now that you're all logged in and have a valid token, we need select a character. A token can only have 1 character logged in at a time, which is why the initial `CompanionApi('some_name')` can be used to login to multiple characters.
