@@ -34,6 +34,11 @@ class Profile
     {
         self::$name = $name;
     }
+
+    public static function setSavePath(string $path)
+    {
+        self::$savePath = $path;
+    }
     
     /**
      * Get a config value
@@ -90,11 +95,5 @@ class Profile
     public function getRegion()
     {
         return Profile::get('region');
-    }
-    
-    public function setSavePath($path)
-    {
-        Profile::$savePath = $path;
-        Profile::init();
     }
 }

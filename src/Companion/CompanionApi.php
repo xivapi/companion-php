@@ -15,8 +15,9 @@ use Companion\Config\Profile;
 
 class CompanionApi
 {
-    public function __construct(string $profile)
+    public function __construct(string $profile, string $savePath = Profile::CONFIG_FILE)
     {
+        Profile::setSavePath($savePath);
         Profile::setProfile($profile);
         Profile::init();
     }
