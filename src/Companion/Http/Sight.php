@@ -47,7 +47,7 @@ class Sight
     {
         $client = new Client([
             'cookies' => Cookies::get(),
-            'timeout' => 15,
+            'timeout' => 30,
             'verify'  => false,
         ]);
         
@@ -62,7 +62,7 @@ class Sight
         
         // query multiple times, as SE provide a "202" Accepted which is
         // their way of saying "Soon(tm)", so... try again.
-        foreach (range(0, 15) as $i) {
+        foreach (range(0, 30) as $i) {
             /** @var Response $response */
             $response = $client->{$method}($uri, $options);
         
@@ -75,5 +75,7 @@ class Sight
         
             return new CompanionResponse($response, $uri);
         }
+        
+        throw new \Exception('Did not receive any valid HTTP code from the Companion API after 15 seconds and 30 attempts.');
     }
 }
