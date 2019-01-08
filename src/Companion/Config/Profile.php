@@ -38,6 +38,7 @@ class Profile
     public static function setSavePath(string $path)
     {
         self::$savePath = $path;
+        self::init();
     }
     
     /**

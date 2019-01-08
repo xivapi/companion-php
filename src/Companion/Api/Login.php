@@ -94,6 +94,16 @@ class Login extends Sight
         $this->getCharacter();
     }
     
+    public function getCharacterStatus()
+    {
+        $req = new CompanionRequest([
+            'uri'      => Profile::get('region'),
+            'endpoint' => '/character/login-status',
+        ]);
+    
+        return $this->get($req)->getJson();
+    }
+    
     /**
      * Get the uri region for the logged in character.
      * Sometimes returns blank... Unsure why
