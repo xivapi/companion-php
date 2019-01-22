@@ -117,6 +117,18 @@ $character = $api->login()->getCharacter()->character;
 echo "- Logged in as: {$character->name} ({$character->world}) \n";
 ```
 
+Now to access market board you have to confirm the characters status. This is so the Companion API can register your current world, this will be useful when World Visit is available.
+
+```php
+$status = $api->login()->getCharacterStatus();
+if (empty($status)) {
+    $this->addToTable($server, 'Could not confirm character status.');
+    $this->setAccountError($server, 'Could not confirm character status.');
+    continue;
+}
+```
+
+
 Now you can access all the various different API methods, view the API Docs below for details on these:
 
 ## API
