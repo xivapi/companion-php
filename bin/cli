@@ -1,66 +1,65 @@
 #!/usr/bin/env php
 <?php
+
 /**
+ *
  * CLI tool to test the Companion API
+ *
  */
 
 // composer auto loader
 require __DIR__ . '/../vendor/autoload.php';
 
 use Companion\CompanionApi;
+use Companion\Config\CompanionConfig;
 
-/**
- * The order of logging in is important:
- * 1) request a token and login
- * 2) Get a list of characters (could skip if you cache CID)
- * 3) Login to a character, this is required and it sets your region domain
- * 4) Confirm logged in character against DC endpoint
- * 5) Query API!
- */
+// (optional) set filename for where to save tokens
+CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
 
-
-// do something
-$api = new CompanionApi('character_profile_name');
+// create a new token
+$api = new CompanionApi('manual_login');
 
 /*
 $loginUrl = $api->Account()->getLoginUrl();
-$token    = $api->Profile()->getToken();
-echo "Login to the url: {$loginUrl} and then the token {$token} will work";
+$token    = CompanionConfig::getToken()->token;
+echo "Token: {$token} - Login URL: \n\n{$loginUrl}\n\n";
+die;
 */
 
-// login with the profiles username+password
+// login with the profiles username+password, this is not stored anywhere
 // once this has been done once, you don't need to do it for 24 hours for the same profile
-//$api->Account()->login('', '');
+$api->Account()->login('', '');
 
 //
 // Get API-ing!
 //
 
 // Get a list of characters
+
 echo "Getting a list of characters\n";
-foreach ($api->login()->getCharacters()->accounts[0]->characters as $character) {
+foreach ($api->Login()->getCharacters()->accounts[0]->characters as $character) {
     echo "- {$character->cid} :: {$character->name} ({$character->world})\n";
 }
 
 // Login with a character, this should return the region
 echo "log-in in with a character\n";
-$api->login()->loginCharacter('56e49ab219b0597e_01648');
+$api->Login()->loginCharacter('a4b2ecf9e20837ab_26052');
 
-// Get current logged in character
-echo "Confirming logged in character ...\n";
+
+// Get current logged in character#echo "Confirming logged in character ...\n";
 $character = $api->login()->getCharacter()->character;
 echo "- Logged in as: {$character->name} ({$character->world}) \n";
 
-// acquire kupo nuts
-echo "Requesting kupo nuts \n";
-$api->payments()->acquirePoints();
+// we have to get the character status (something to do with World Visit when its out.)
+$api->login()->getCharacterStatus();
 
-// get currency status (num of kupo nutz)
-echo "Confirming kupo nuts status \n";
-print_r( "Nuts: ". count($api->payments()->getCurrencyStatus()->kupoNuts) . "\n\n");
+/*
+print_r(
+    $api->market()->getItemMarketListings(3)
+);
+*/
 
-// Get item prices for item id 5 (Earth Shard)
-echo "Getting market info\n";
-print_r( count($api->market()->getItemMarketListings(5)->entries) ." Earth Shard listings for sale" );
+print_r(CompanionConfig::getToken());
 
-die;
+// (optional) save our token
+CompanionConfig::saveTokens();

@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\Profile;
+use Companion\Config\CompanionConfig;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 
@@ -34,7 +34,7 @@ class Market extends Sight
     public function getItemMarketHqListings(int $itemId)
     {
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/market/items/catalog/{$itemId}/hq",
         ]);
     
@@ -43,12 +43,12 @@ class Market extends Sight
     
     /**
      * catalogId = itemId
-     * @GET("market/items/catalog/{catalogId}")
+     * @GET("market/items/catalog/{itemId}")
      */
     public function getItemMarketListings(int $itemId)
     {
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/market/items/catalog/{$itemId}",
         ]);
     
@@ -61,7 +61,7 @@ class Market extends Sight
     public function getMarketListingsByCategory(int $categoryId)
     {
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/market/items/category/{$categoryId}",
         ]);
     
@@ -74,7 +74,7 @@ class Market extends Sight
     public function getRetainerInfo(string $cid)
     {
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/market/retainers/{$cid}",
         ]);
     
@@ -82,13 +82,13 @@ class Market extends Sight
     }
     
     /**
-     * @GET("market/items/history/catalog/{catalogId}")
+     * @GET("market/items/history/catalog/{itemId}")
      */
-    public function getTransactionHistory(int $catalogId)
+    public function getTransactionHistory(int $itemId)
     {
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
-            'endpoint' => "/market/items/history/catalog/{$catalogId}",
+            'uri'      => CompanionConfig::getToken()->region,
+            'endpoint' => "/market/items/history/catalog/{$itemId}",
         ]);
     
         return $this->get($req)->getJson();

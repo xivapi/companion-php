@@ -2,7 +2,7 @@
 
 namespace Companion\Http;
 
-use Companion\Config\Profile;
+use Companion\Config\CompanionConfig;
 use Companion\Models\CompanionRequest;
 use Companion\Models\CompanionResponse;
 use GuzzleHttp\Client;

@@ -2,7 +2,7 @@
 
 namespace Companion\Models;
 
-use Companion\Config\Profile;
+use Companion\Config\CompanionConfig;
 use Companion\Utils\ID;
 use GuzzleHttp\RequestOptions;
 use Ramsey\Uuid\Uuid;
@@ -33,16 +33,16 @@ class CompanionRequest
     
     public function __construct(array $config)
     {
-        $config            = (Object)$config;
-        $this->uri         = $config->uri;
-        $this->version     = $config->version ?? self::VERSION;
-        $this->endpoint    = $config->endpoint ?? null;
-        $this->json        = $config->json ?? [];
-        $this->form        = $config->form ?? [];
-        $this->query       = $config->query ?? [];
-        $this->cookies     = $config->cookies ?? [];
-        $this->redirect    = $config->redirect ?? $this->redirect;
-        $this->return202   = $config->return202 ?? $this->return202;
+        $config          = (Object)$config;
+        $this->uri       = $config->uri;
+        $this->version   = $config->version ?? self::VERSION;
+        $this->endpoint  = $config->endpoint ?? null;
+        $this->json      = $config->json ?? [];
+        $this->form      = $config->form ?? [];
+        $this->query     = $config->query ?? [];
+        $this->cookies   = $config->cookies ?? [];
+        $this->redirect  = $config->redirect ?? $this->redirect;
+        $this->return202 = $config->return202 ?? $this->return202;
         
         // if we're on SE secure domain, remove version
         if (stripos($this->uri, self::URI_SE)) {
@@ -54,7 +54,7 @@ class CompanionRequest
         $this->headers['Accept-Encoding'] = 'br, gzip, deflate';
         $this->headers['User-Agent']      = 'ffxivcomapp-e/1.0.5.0 CFNetwork/976 Darwin/18.2.0';
         $this->headers['request-id']      = $config->requestId ?? ID::uuid();
-        $this->headers['token']           = Profile::get('token');
+        $this->headers['token']           = CompanionConfig::getToken()->token;
         $this->headers                    = array_merge($this->headers, $config->headers ?? []);
     }
     
@@ -71,11 +71,11 @@ class CompanionRequest
         ];
 
         $map = [
-            RequestOptions::HEADERS         => $this->headers,
-            RequestOptions::JSON            => $this->json,
-            RequestOptions::FORM_PARAMS     => $this->form,
-            RequestOptions::QUERY           => $this->query,
-            RequestOptions::COOKIES         => $this->cookies,
+            RequestOptions::HEADERS     => $this->headers,
+            RequestOptions::JSON        => $this->json,
+            RequestOptions::FORM_PARAMS => $this->form,
+            RequestOptions::QUERY       => $this->query,
+            RequestOptions::COOKIES     => $this->cookies,
         ];
         
         foreach ($map as $requestOption => $requestValues) {

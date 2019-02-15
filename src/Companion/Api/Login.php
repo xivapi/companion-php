@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\Profile;
+use Companion\Config\CompanionConfig;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 use Companion\Utils\ID;
@@ -34,8 +34,8 @@ class Login extends Sight
             'endpoint' => '/login/auth',
             'requestId' => ID::get(),
             'query'    => [
-                'token'      => Profile::get('token'),
-                'uid'        => Profile::get('uid'),
+                'token'      => CompanionConfig::getToken()->token,
+                'uid'        => CompanionConfig::getToken()->uid,
                 'request_id' => ID::get()
             ],
         ]);
@@ -50,11 +50,18 @@ class Login extends Sight
     {
         // log the character into the regional data center endpoint
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/login/character",
         ]);
         
-        return $this->get($req)->getJson();
+        $res = $this->get($req)->getJson();
+        
+        // record character in token
+        CompanionConfig::getToken()->character = $res->character->cid;
+        CompanionConfig::getToken()->server = $res->character->world;
+        CompanionConfig::saveTokens();
+        
+        return $res;
     }
     
     /**
@@ -88,7 +95,8 @@ class Login extends Sight
         ]);
     
         $res = $this->post($req)->getJson();
-        Profile::set('region', substr($res->region, 0, -1));
+        CompanionConfig::getToken()->region = substr($res->region, 0, -1);
+        CompanionConfig::saveTokens();
         
         // call get character on DC as this will log it in.
         $this->getCharacter();
@@ -97,7 +105,7 @@ class Login extends Sight
     public function getCharacterStatus()
     {
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => '/character/login-status',
         ]);
     
@@ -133,7 +141,7 @@ class Login extends Sight
             'json'     => [
                 // not sure if this has to be the same UID or a new one
                 // if it's a new one, need userId + salt
-                'uid'       => Profile::get('uid'),
+                'uid'       => CompanionConfig::getToken()->uid,
                 'platform'  => Account::PLATFORM_ANDROID,
             ]
         ]);
@@ -148,7 +156,7 @@ class Login extends Sight
     public function advertisingId()
     {
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => '/login/advertising-id',
             'json'     => [
                 // This UUID always seems to be the same
@@ -172,7 +180,7 @@ class Login extends Sight
     public function fcmToken()
     {
         $req = new CompanionRequest([
-            'uri'      => Profile::get('region'),
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => '/login/fcm-token',
             'json'     => [
                 'fcmToken' => ''

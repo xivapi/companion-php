@@ -11,64 +11,79 @@ use Companion\Api\Account;
 use Companion\Api\Payments;
 use Companion\Api\Report;
 use Companion\Api\Schedule;
-use Companion\Config\Profile;
+use Companion\Config\CompanionConfig;
 
 class CompanionApi
 {
-    public function __construct(string $profile, string $savePath = Profile::CONFIG_FILE)
+    private $classInstances = [];
+    
+    /**
+     * Provide either:
+     * - a stdClass of an existing token
+     * - a string of for a name for a new token
+     */
+    public function __construct($token)
     {
-        Profile::setSavePath($savePath);
-        Profile::setProfile($profile);
-        Profile::init();
+        CompanionConfig::init($token);
     }
     
-    public function Profile()
+    public function Account(): Account
     {
-        return new Profile();
+        return $this->getClass(Account::class);
     }
     
-    public function Account()
+    public function AddressBook(): AddressBook
     {
-        return new Account();
+        return $this->getClass(AddressBook::class);
+    }
+
+    public function ChatRoom(): ChatRoom
+    {
+        return $this->getClass(ChatRoom::class);
+    }
+
+    public function Item(): Item
+    {
+        return $this->getClass(Item::class);
+    }
+
+    public function Login(): Login
+    {
+        return $this->getClass(Login::class);
+    }
+
+    public function Market(): Market
+    {
+        return $this->getClass(Market::class);
+    }
+
+    public function Payments(): Payments
+    {
+        return $this->getClass(Payments::class);
+    }
+
+    public function Report(): Report
+    {
+        return $this->getClass(Report::class);
+    }
+
+    public function Schedule(): Schedule
+    {
+        return $this->getClass(Schedule::class);
     }
     
-    public function AddressBook()
+    /**
+     * Either returns an existing initialized class or a new one
+     */
+    private function getClass(string $className)
     {
-        return new AddressBook();
-    }
-
-    public function ChatRooms()
-    {
-        return new ChatRoom();
-    }
-
-    public function Item()
-    {
-        return new Item();
-    }
-
-    public function Login()
-    {
-        return new Login();
-    }
-
-    public function Market()
-    {
-        return new Market();
-    }
-
-    public function Payments()
-    {
-        return new Payments();
-    }
-
-    public function Report()
-    {
-        return new Report();
-    }
-
-    public function Schedule()
-    {
-        return new Schedule();
+        if (isset($this->classInstances[$className])) {
+            return $this->classInstances[$className];
+        }
+        
+        $class = new $className();
+        $this->classInstances[$className] = $class;
+        
+        return $class;
     }
 }

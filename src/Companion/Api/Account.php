@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\Profile;
+use Companion\Config\CompanionConfig;
 use Companion\Http\Cookies;
 use Companion\Http\Pem;
 use Companion\Http\Sight;
@@ -52,12 +52,14 @@ class Account extends Sight
     public function getLoginUrl()
     {
         // Generate a new user uuid
-        Profile::set('userId', ID::uuid());
+        CompanionConfig::getToken()->userId = ID::uuid();
+        CompanionConfig::saveTokens();
         
         // Get a token from SE
         $response = $this->getToken();
-        Profile::set('token', $response->token);
-        Profile::set('salt', $response->salt);
+        CompanionConfig::getToken()->token = $response->token;
+        CompanionConfig::getToken()->salt  = $response->salt;
+        CompanionConfig::saveTokens();
         
         // Get OAuth URI
         $this->loginUri = $this->buildLoginUri();
@@ -73,7 +75,7 @@ class Account extends Sight
         $rsa = new RSA();
         $rsa->loadKey(Pem::get());
         $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
-        $uid = base64_encode($rsa->encrypt(Profile::get('userId')));
+        $uid = base64_encode($rsa->encrypt(CompanionConfig::getToken()->userId));
         
         return $this->post(new CompanionRequest([
             'uri'       => CompanionRequest::URI,
@@ -170,14 +172,15 @@ class Account extends Sight
     private function buildCompanionOAuthRedirectUri()
     {
         $uid = PBKDF2::encrypt(
-            Profile::get('userId'),
-            Profile::get('salt')
+            CompanionConfig::getToken()->userId,
+            CompanionConfig::getToken()->salt
         );
-        
-        Profile::set('uid', $uid);
+    
+        CompanionConfig::getToken()->uid = $uid;
+        CompanionConfig::saveTokens();
         
         return CompanionRequest::OAUTH_CALLBACK .'?'. http_build_query([
-                'token'      => Profile::get('token'),
+                'token'      => CompanionConfig::getToken()->token,
                 'uid'        => $uid,
                 'request_id' => ID::get(),
             ]);
