@@ -3,6 +3,7 @@
 namespace Companion\Http;
 
 use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionSight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\CompanionResponse;
 use GuzzleHttp\Client;
@@ -47,29 +48,23 @@ class Sight
     {
         $client = new Client([
             'cookies' => Cookies::get(),
-            'timeout' => 30,
-            'verify'  => false,
+            'timeout' => CompanionSight::get('CLIENT_TIMEOUT'),
+            'verify'  => CompanionSight::get('CLIENT_VERIFY'),
         ]);
-        
-        // grab request uri and options
+
         $uri     = $request->getUri();
         $options = $request->getOptions();
-
-        $url = null;
-        $options['on_stats'] = function (TransferStats $stats) use (&$url) {
-            $url = $stats->getEffectiveUri();
-        };
         
         // query multiple times, as SE provide a "202" Accepted which is
         // their way of saying "Soon(tm)", so... try again.
-        foreach (range(0, 30) as $i) {
+        foreach (range(0, CompanionSight::get('QUERY_LOOP_COUNT')) as $i) {
             /** @var Response $response */
             $response = $client->{$method}($uri, $options);
         
             // if the response is 202, try again
             if (!$request->return202 && $response->getStatusCode() == 202) {
                 // wait half a second
-                usleep(500000);
+                usleep(CompanionSight::get('QUERY_DELAY_MS'));
                 continue;
             }
         

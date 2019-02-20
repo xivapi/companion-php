@@ -17,7 +17,7 @@ use Companion\Config\CompanionConfig;
 CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
 
 // create a new token
-$api = new CompanionApi('manual_login');
+$api = new CompanionApi('test_token');
 
 /*
 $loginUrl = $api->Account()->getLoginUrl();
@@ -46,18 +46,16 @@ echo "log-in in with a character\n";
 $api->Login()->loginCharacter('a4b2ecf9e20837ab_26052');
 
 
-// Get current logged in character#echo "Confirming logged in character ...\n";
-$character = $api->login()->getCharacter()->character;
+// Get current logged in character;
+$character = $api->Login()->getCharacter()->character;
 echo "- Logged in as: {$character->name} ({$character->world}) \n";
 
 // we have to get the character status (something to do with World Visit when its out.)
-$api->login()->getCharacterStatus();
+$api->Login()->getCharacterStatus();
 
-/*
 print_r(
-    $api->market()->getItemMarketListings(3)
+    $api->Market()->getItemMarketListings(3)
 );
-*/
 
 print_r(CompanionConfig::getToken());
 

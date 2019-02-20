@@ -18,11 +18,11 @@ class CompanionConfig
     {
         if (is_string($token)) {
             // try load an existing token
-            if ($token = self::loadTokens($token)) {
-                self::$token = $token;
+            if ($existing = self::loadTokens($token)) {
+                self::$token = $existing;
                 return;
             }
-            
+
             // create a new token
             self::$token = new Token($token);
             return;
