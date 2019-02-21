@@ -7,6 +7,7 @@ use Companion\Http\Cookies;
 use Companion\Http\Pem;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
+use Companion\Models\Method;
 use Companion\Utils\PBKDF2;
 use Companion\Utils\ID;
 use phpseclib\Crypt\RSA;
@@ -77,7 +78,8 @@ class Account extends Sight
         $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
         $uid = base64_encode($rsa->encrypt(CompanionConfig::getToken()->userId));
         
-        return $this->post(new CompanionRequest([
+        return $this->request(new CompanionRequest([
+            'method'    => Method::POST,
             'uri'       => CompanionRequest::URI,
             'endpoint'  => '/login/token',
             'requestId' => ID::get(),
@@ -94,7 +96,8 @@ class Account extends Sight
      */
     private function autoLoginToProfileAccount(string $username, string $password)
     {
-        $html = $this->get(new CompanionRequest([
+        $html = $this->request(new CompanionRequest([
+            'method'    => Method::GET,
             'uri'       => $this->loginUri,
             'version'   => '',
             'requestId' => ID::get()
@@ -116,7 +119,8 @@ class Account extends Sight
                 'password' => $password,
             ];
             
-            $res = $this->post(new CompanionRequest([
+            $res = $this->request(new CompanionRequest([
+                'method'    => Method::POST,
                 'uri'       => CompanionRequest::URI_SE . "/oauth/oa/{$action}",
                 'version'   => '',
                 'requestId' => ID::get(),
@@ -140,6 +144,7 @@ class Account extends Sight
         
         // submit to companion to confirm cis_sessid
         $req = new CompanionRequest([
+            'method'    => Method::POST,
             'uri'       => $action,
             'form'      => $formData,
             'version'   => '',
@@ -148,7 +153,7 @@ class Account extends Sight
         ]);
         
         // this will be another form with some other bits that the app just forcefully submits via js
-        if ($this->post($req)->getStatusCode() !== 202) {
+        if ($this->request($req)->getStatusCode() !== 202) {
             throw new \Exception('Login status could not be validated.');
         }
     }
@@ -159,11 +164,11 @@ class Account extends Sight
     private function buildLoginUri()
     {
         return CompanionRequest::SQEX_AUTH_URI .'?'. http_build_query([
-                'client_id'     => 'ffxiv_comapp',
-                'lang'          => 'en-us',
-                'response_type' => 'code',
-                'redirect_uri'  => $this->buildCompanionOAuthRedirectUri(),
-            ]);
+            'client_id'     => 'ffxiv_comapp',
+            'lang'          => 'en-us',
+            'response_type' => 'code',
+            'redirect_uri'  => $this->buildCompanionOAuthRedirectUri(),
+        ]);
     }
     
     /**
@@ -180,10 +185,10 @@ class Account extends Sight
         CompanionConfig::saveTokens();
         
         return CompanionRequest::OAUTH_CALLBACK .'?'. http_build_query([
-                'token'      => CompanionConfig::getToken()->token,
-                'uid'        => $uid,
-                'request_id' => ID::get(),
-            ]);
+            'token'      => CompanionConfig::getToken()->token,
+            'uid'        => $uid,
+            'request_id' => ID::get(),
+        ]);
     }
     
     /**

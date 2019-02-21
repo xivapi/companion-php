@@ -5,6 +5,7 @@ namespace Companion\Api;
 use Companion\Config\CompanionConfig;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
+use Companion\Models\Method;
 
 /**
  * Based on: PaymentService.java
@@ -18,11 +19,12 @@ class Payments extends Sight
     public function acquirePoints()
     {
         $req = new CompanionRequest([
+            'method'   => Method::POST,
             'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/points/kupo-nuts",
         ]);
     
-        return $this->post($req)->getJson();
+        return $this->request($req)->getJson();
     }
     
     /**

@@ -5,7 +5,6 @@ namespace Companion\Models;
 use Companion\Config\CompanionConfig;
 use Companion\Utils\ID;
 use GuzzleHttp\RequestOptions;
-use Ramsey\Uuid\Uuid;
 
 class CompanionRequest
 {
@@ -16,7 +15,8 @@ class CompanionRequest
     const URI     = 'https://companion.finalfantasyxiv.com';
     const URI_SE  = 'https://secure.square-enix.com';
     const VERSION = '/sight-v060/sight';
-    
+
+    public $method;
     public $uri;
     public $endpoint;
     public $version;
@@ -34,6 +34,7 @@ class CompanionRequest
     public function __construct(array $config)
     {
         $config          = (Object)$config;
+        $this->method    = $config->method;
         $this->uri       = $config->uri;
         $this->version   = $config->version ?? self::VERSION;
         $this->endpoint  = $config->endpoint ?? null;
@@ -56,6 +57,18 @@ class CompanionRequest
         $this->headers['request-id']      = $config->requestId ?? ID::uuid();
         $this->headers['token']           = CompanionConfig::getToken()->token;
         $this->headers                    = array_merge($this->headers, $config->headers ?? []);
+    }
+
+    public function setMethod(string $method): self
+    {
+        $this->method = $method;
+        return $this;
+    }
+
+    public function setRequestId(string $requestId): self
+    {
+        $this->headers['request-id'] = $requestId;
+        return $this;
     }
     
     public function getUri()

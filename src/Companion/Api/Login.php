@@ -5,6 +5,7 @@ namespace Companion\Api;
 use Companion\Config\CompanionConfig;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
+use Companion\Models\Method;
 use Companion\Utils\ID;
 
 /**
@@ -30,6 +31,7 @@ class Login extends Sight
     public function postAuth()
     {
         $req = new CompanionRequest([
+            'method'   => Method::POST,
             'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/auth',
             'requestId' => ID::get(),
@@ -40,7 +42,7 @@ class Login extends Sight
             ],
         ]);
         
-        return $this->post($req)->getJson();
+        return $this->request($req)->getJson();
     }
     
     /**
@@ -50,11 +52,12 @@ class Login extends Sight
     {
         // log the character into the regional data center endpoint
         $req = new CompanionRequest([
+            'method'   => Method::GET,
             'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/login/character",
         ]);
         
-        $res = $this->get($req)->getJson();
+        $res = $this->request($req)->getJson();
         
         // record character in token
         CompanionConfig::getToken()->character = $res->character->cid;
@@ -70,11 +73,12 @@ class Login extends Sight
     public function getCharacters()
     {
         $req = new CompanionRequest([
+            'method'   => Method::GET,
             'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/characters',
         ]);
         
-        return $this->get($req)->getJson();
+        return $this->request($req)->getJson();
     }
     
     /**
@@ -86,6 +90,7 @@ class Login extends Sight
     {
         // log the character into the base endpoint
         $req = new CompanionRequest([
+            'method'   => Method::POST,
             'uri'      => CompanionRequest::URI,
             'endpoint' => "/login/characters/{$characterId}",
             'json'     => [
@@ -94,7 +99,7 @@ class Login extends Sight
             ]
         ]);
     
-        $res = $this->post($req)->getJson();
+        $res = $this->request($req)->getJson();
         CompanionConfig::getToken()->region = substr($res->region, 0, -1);
         CompanionConfig::saveTokens();
         
@@ -105,11 +110,12 @@ class Login extends Sight
     public function getCharacterStatus()
     {
         $req = new CompanionRequest([
+            'method'   => Method::GET,
             'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => '/character/login-status',
         ]);
     
-        return $this->get($req)->getJson();
+        return $this->request($req)->getJson();
     }
     
     /**
@@ -121,11 +127,12 @@ class Login extends Sight
     public function getRegion()
     {
         $req = new CompanionRequest([
+            'method'   => Method::GET,
             'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/region',
         ]);
         
-        return $this->get($req)->getJson();
+        return $this->request($req)->getJson();
     }
     
     /**
@@ -136,6 +143,7 @@ class Login extends Sight
     public function postToken()
     {
         $req = new CompanionRequest([
+            'method'   => Method::POST,
             'uri'      => CompanionRequest::URI,
             'endpoint' => '/login/token',
             'json'     => [
@@ -146,7 +154,7 @@ class Login extends Sight
             ]
         ]);
     
-        return $this->post($req)->getJson();
+        return $this->request($req)->getJson();
     }
     
     /**
@@ -156,6 +164,7 @@ class Login extends Sight
     public function advertisingId()
     {
         $req = new CompanionRequest([
+            'method'   => Method::POST,
             'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => '/login/advertising-id',
             'json'     => [
@@ -165,7 +174,7 @@ class Login extends Sight
             ]
         ]);
     
-        return $this->post($req);
+        return $this->request($req);
     }
     
     /**
@@ -180,6 +189,7 @@ class Login extends Sight
     public function fcmToken()
     {
         $req = new CompanionRequest([
+            'method'   => Method::POST,
             'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => '/login/fcm-token',
             'json'     => [
@@ -187,6 +197,6 @@ class Login extends Sight
             ]
         ]);
     
-        return $this->post($req);
+        return $this->request($req);
     }
 }

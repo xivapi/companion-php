@@ -5,6 +5,7 @@ namespace Companion\Api;
 use Companion\Config\CompanionConfig;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
+use Companion\Models\Method;
 
 /**
  * Based on: AddressBookService.java
@@ -18,11 +19,12 @@ class AddressBook extends Sight
     public function deleteBlockList(array $json = [])
     {
         $req = new CompanionRequest([
-            'uri'      =>CompanionConfig::getToken()->region,
+            'method'   => Method::DELETE,
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/address-book/blocklist",
         ]);
     
-        return $this->delete($req)->getJson();
+        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
     }
     
     /**
@@ -32,11 +34,12 @@ class AddressBook extends Sight
     public function getAddressBook(int $updatedAt = null)
     {
         $req = new CompanionRequest([
-            'uri'      =>CompanionConfig::getToken()->region,
+            'method'   => Method::GET,
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/address-book",
         ]);
     
-        return $this->get($req)->getJson();
+        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
     }
     
     /**

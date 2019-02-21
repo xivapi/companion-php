@@ -1,8 +1,8 @@
 # Companion PHP  
   
-A library for interacting with the FFXIV Companion App API  
-  
-To learn more about the FFXIV Companion App, read the [Research Doc](https://github.com/viion/ffxiv-datamining/blob/master/docs/CompanionAppApi.md).  
+A library for interacting with the FFXIV Companion App API
+
+To learn more about the FFXIV Companion App, read the [Research Doc](https://github.com/viion/ffxiv-datamining/blob/master/docs/CompanionAppApi.md).
 
 If you are just interested in market data and not access Companion App features, have a look at XIVAPI: https://xivapi.com/docs/Market
 
@@ -10,12 +10,12 @@ If you are just interested in market data and not access Companion App features,
 
 - **Companion**: The Official FFXIV Companioon Mobile App.
 - **Sight**: The API that SE uses within the app to talk to the Game Servers.
-  
-## How to use  
-  
-Include the library using composer: https://packagist.org/packages/xivapi/companion-php  
-  
-```bash  
+
+## How to use
+
+Include the library using composer: https://packagist.org/packages/xivapi/companion-php
+
+```bash
 composer require xivapi/companion-php
 ```
 
@@ -52,11 +52,11 @@ The `CompanionConfig` class is static and provides the following methods:
 
 When you initialize the API you need to provide a `token` parameter. This will either be:
 
-- a `stdClass` object of an existing token that you have saved. 
+- a `stdClass` object of an existing token that you have saved.
 - a `string` that can be used as a name for your token. If you are using the libraries built-in Token Management then it will try find an existing token with this name, otherwise a new token object will be created.
 
 ```php
-use Companion\CompanionApi; 
+use Companion\CompanionApi;
 
 // new or existing saved token
 $api = new CompanionApi('name_of_your_token');
@@ -67,18 +67,18 @@ $api = new CompanionApi($savedToken);
 ```
 
 ### Getting a token!
-  
+
 Once you've decided how you're going to manage your Sight tokens and you're ready to go, we need to decide which method of accessing the API we're going to use. The 2 are:
-  
-- **Manual** - Ask the library to generate a login URL for you. This Url is an official Square-Enix Secure URL (the exact one the Companion App presents to you) which you can login to and authenticate your token. This works with 2 factor authentication.  
+
+- **Manual** - Ask the library to generate a login URL for you. This Url is an official Square-Enix Secure URL (the exact one the Companion App presents to you) which you can login to and authenticate your token. This works with 2 factor authentication.
 - **Auto-Login** - Provide the library your Square-Enix Username+Password and it will automatically login to the app for you and authenticate your token. This does not work with 2 factor authentication at this time.
 
 
-  
+
 ### Login - Manual
 
 ```php
-use Companion\CompanionApi; 
+use Companion\CompanionApi;
 
 $api      = new CompanionApi('my_token_name');
 
@@ -96,7 +96,7 @@ Once you have a `200` or `202` status, your `$token` will be valid for 24 hours.
 If you are using the built in Token Manager; you can now access this token via the name `profile_name`. This means all future queries (once you have selected a character) can be setup like so:
 
 ```php
-use Companion\CompanionApi; 
+use Companion\CompanionApi;
 
 $api = new CompanionApi('my_token_name');
 $earthShardPrices = $api->market()->getItemMarketListings(5);
@@ -108,7 +108,7 @@ $earthShardPrices = $api->market()->getItemMarketListings(5);
 To smooth out automation, you can have the library log into the companion app for you, like so:
 
 ```php
-use Companion\CompanionApi; 
+use Companion\CompanionApi;
 
 $api = new CompanionApi('my_token_name');
 
@@ -127,7 +127,7 @@ CompanionConfig::getToken();
 If you are using the built in Token Manager; you can now access this token via the name `profile_name`. This means all future queries (once you have selected a character) can be setup like so:
 
 ```php
-use Companion\CompanionApi; 
+use Companion\CompanionApi;
 
 $api = new CompanionApi('my_token_name');
 $earthShardPrices = $api->market()->getItemMarketListings(5);
@@ -169,6 +169,14 @@ $api->login()->getCharacterStatus();
 ```
 
 Once you have done this, you can now access the market board as well as any other Sight endpoint! You can find all API calls below.
+
+##  Async Requests
+
+The library supports async requests for all main data actions (not Account or Login actions). This allows you to query multiple endpoints at the same time.
+
+When you enable async it will by pass the "garauntee response" feature. The Sight API doesn't provide data in the first request, instead it will take your request and queue it up, you then need to perform the same request again to get the response. Usually a Sight request will fulfill within 3 seconds, so you could 20 concurrent requests, wait 3 seconds and then perform the same 20 concurrent requests again using the same Request ID to get your response.
+
+You can view an example of Async usage in `bin/cli_async`
 
 ## API
 

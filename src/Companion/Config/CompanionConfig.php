@@ -93,7 +93,7 @@ class CompanionConfig
         return self::$token;
     }
     
-    public static function setAsync()
+    public static function useAsync()
     {
         self::$async = true;
     }

@@ -11,8 +11,8 @@ class CompanionSight
     private static $defaults = [
         'CLIENT_TIMEOUT'    => 30,
         'CLIENT_VERIFY'     => false,
-        'QUERY_LOOP_COUNT'  => 30,
-        'QUERY_DELAY_MS'    => 500 * 1000,
+        'QUERY_LOOP_COUNT'  => 5,
+        'QUERY_DELAY_MS'    => 800 * 1000,
     ];
 
     // custom

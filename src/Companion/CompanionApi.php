@@ -2,6 +2,9 @@
 
 namespace Companion;
 
+use Companion\Http\Sight;
+use Companion\Models\CompanionResponse;
+
 use Companion\Api\AddressBook;
 use Companion\Api\ChatRoom;
 use Companion\Api\Item;
@@ -70,6 +73,11 @@ class CompanionApi
     public function Schedule(): Schedule
     {
         return $this->getClass(Schedule::class);
+    }
+
+    public function Sight(): Sight
+    {
+        return $this->getClass(Sight::class);
     }
     
     /**

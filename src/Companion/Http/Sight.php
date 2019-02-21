@@ -7,44 +7,18 @@ use Companion\Config\CompanionSight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\CompanionResponse;
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\RequestOptions;
-use GuzzleHttp\TransferStats;
 
 /**
  * The name of the CompanionApp API is "Sight"
  */
 class Sight
 {
-    protected function get(CompanionRequest $request): CompanionResponse
-    {
-        return $this->request('get', $request);
-    }
-    
-    protected function post(CompanionRequest $request): CompanionResponse
-    {
-        return $this->request('post', $request);
-    }
-    
-    protected function put(CompanionRequest $request): CompanionResponse
-    {
-        return $this->request('put', $request);
-    }
-    
-    protected function delete(CompanionRequest $request): CompanionResponse
-    {
-        return $this->request('delete', $request);
-    }
-    
-    protected function patch(CompanionRequest $request): CompanionResponse
-    {
-        return $this->request('patch', $request);
-    }
-    
     /**
      * Send a request to the Companion API
      */
-    private function request(string $method, CompanionRequest $request): CompanionResponse
+    public function request(CompanionRequest $request)
     {
         $client = new Client([
             'cookies' => Cookies::get(),
@@ -54,12 +28,17 @@ class Sight
 
         $uri     = $request->getUri();
         $options = $request->getOptions();
-        
+
+        // if async, return the request
+        if (CompanionConfig::isAsync()) {
+            return $client->{$request->method}($uri, $options);
+        }
+
         // query multiple times, as SE provide a "202" Accepted which is
         // their way of saying "Soon(tm)", so... try again.
         foreach (range(0, CompanionSight::get('QUERY_LOOP_COUNT')) as $i) {
             /** @var Response $response */
-            $response = $client->{$method}($uri, $options);
+            $response = $client->{$request->method}($uri, $options);
         
             // if the response is 202, try again
             if (!$request->return202 && $response->getStatusCode() == 202) {
@@ -72,5 +51,72 @@ class Sight
         }
         
         throw new \Exception('Did not receive any valid HTTP code from the Companion API after 15 seconds and 30 attempts.');
+    }
+
+    // ------------------------------------------------
+    // Async logic
+    // ------------------------------------------------
+
+    /**
+     * Settle each request
+     */
+    public function settle($promises)
+    {
+        return Promise\settle(
+            $this->buildPromiseRequests($promises)
+        );
+    }
+
+    /**
+     * Settle each request
+     */
+    public function unwrap($promises)
+    {
+        return Promise\unwrap(
+            $this->buildPromiseRequests($promises)
+        );
+    }
+
+    /**
+     * Fulfill promise results
+     */
+    public function handle($results): \stdClass
+    {
+        $unwrapped = (Object)[];
+        foreach ($results as $key => $response) {
+            // convert to object
+            $response = (Object)$response;
+
+            // unwrap to our key
+            $unwrapped->{$key} = ($response->state == 'fulfilled')
+                ? (new CompanionResponse($response->value, null))->getJson()
+                : (Object)[
+                    'error' => true,
+                    'state' => $response->state,
+                    'reason' => get_class($response->reason) ." -- ". $response->reason->getMessage()
+                ];
+        }
+
+        return $unwrapped;
+    }
+
+    /**
+     * Builds up promise requests using static request ids
+     */
+    private function buildPromiseRequests($promises)
+    {
+        /** @var CompanionRequest $request */
+        foreach ($promises as $requestId => $request) {
+            // force an assigned request id
+            $request->setRequestId($requestId);
+
+            // modify the method to async
+            $request->setMethod("{$request->method}Async");
+
+            // run the async request
+            $promises[$requestId] = $this->request($request);
+        }
+
+        return $promises;
     }
 }

@@ -13,14 +13,41 @@ require __DIR__ . '/../vendor/autoload.php';
 use Companion\CompanionApi;
 use Companion\Config\CompanionConfig;
 
-// (optional) set filename for where to save tokens
-CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
-
 // create a new token
 $api = new CompanionApi('manual_login');
 
-print_r(
-    $api->market()->getItemMarketListings(3)
-);
+// enable async
+CompanionConfig::useAsync();
 
-print_r(CompanionConfig::getToken());
+// build our requests
+$promises = [
+    'request_id_1' => $api->market()->getItemMarketListings(3),
+    'request_id_2' => $api->market()->getItemMarketListings(4),
+    'request_id_3' => $api->market()->getItemMarketListings(5),
+];
+
+// settle our promises and wait for the responses
+$results = $api->Sight()->settle($promises)->wait();
+
+// handle our promise results
+$prices = $api->Sight()->handle($results);
+
+/**
+ * $prices will now be an array in the same structure as our $promises
+ * but with responses for each key. You will either get JSON decoded as a stdClass
+ * or you will get an error response in the format:
+ * [
+ *  error : 1
+ *  state : rejected
+ *  reason : exception class -- error message
+ * ]
+ */
+
+print_r($prices);
+echo "Waiting 5 seconds ....\n\n";
+sleep(5);
+
+
+$results = $api->Sight()->settle($promises)->wait();
+
+$prices = $api->Sight()->handle($results);
