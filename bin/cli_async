@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ *
+ * CLI tool to test the Companion API
+ *
+ */
+
+// composer auto loader
+require __DIR__ . '/../vendor/autoload.php';
+
+use Companion\CompanionApi;
+use Companion\Config\CompanionConfig;
+
+// (optional) set filename for where to save tokens
+CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
+
+// create a new token
+$api = new CompanionApi('manual_login');
+
+print_r(
+    $api->market()->getItemMarketListings(3)
+);
+
+print_r(CompanionConfig::getToken());

@@ -2,6 +2,9 @@
 
 namespace Companion\Config;
 
+/**
+ * Companion Token Configuration
+ */
 class CompanionConfig
 {
     const TOKEN_FILENAME = __DIR__ .'/tokens.json';
@@ -10,6 +13,8 @@ class CompanionConfig
     private static $token;
     /** @var string */
     private static $tokenFilename;
+    /** @var bool */
+    private static $async = false;
     
     /**
      * Initialize Configuration
@@ -86,5 +91,15 @@ class CompanionConfig
     public static function getToken()
     {
         return self::$token;
+    }
+    
+    public static function setAsync()
+    {
+        self::$async = true;
+    }
+    
+    public static function isAsync(): bool
+    {
+        return self::$async;
     }
 }
