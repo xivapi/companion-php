@@ -26,9 +26,9 @@ class CompanionResponse
         return $this->response->getStatusCode();
     }
     
-    public function getJson(): \stdClass
+    public function getJson()
     {
-        return json_decode($this->response->getBody());
+        return $this->response->getBody() ? json_decode($this->response->getBody()) : null;
     }
     
     public function getBody(): string

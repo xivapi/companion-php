@@ -62,7 +62,6 @@ class CompanionConfig
         $tokens = self::loadTokens();
         $tokens->{self::$token->name} = self::$token->toArray();
         $tokens = json_encode($tokens, JSON_PRETTY_PRINT);
-        
         file_put_contents(self::$tokenFilename, $tokens);
     }
     
@@ -78,7 +77,19 @@ class CompanionConfig
         $tokens = file_get_contents(self::$tokenFilename);
         $tokens = json_decode($tokens);
         
-        if ($tokenName) {
+        // remove any expired tokens after 24hr, i think they expire
+        // after 20+ hrs, or "next day jp" ... idk
+        
+        /** @var Token $token */
+        $deadline = time() - (60 * 60 * CompanionSight::get('TOKEN_EXPIRY_HRS'));
+        foreach ($tokens as $i => $token) {
+            // has it expired?
+            if ($token->created < $deadline) {
+                unset($tokens->{$i});
+            }
+        }
+
+        if ($tokens && $tokenName) {
             return $tokens->{$tokenName} ?? null;
         }
         

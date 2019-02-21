@@ -13,17 +13,21 @@ require __DIR__ . '/../vendor/autoload.php';
 use Companion\CompanionApi;
 use Companion\Config\CompanionConfig;
 
+// (optional) set filename for where to save tokens
+CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
+
 // create a new token
-$api = new CompanionApi('manual_login');
+$api = new CompanionApi('test_token');
 
 // enable async
 CompanionConfig::useAsync();
 
-// build our requests
+// build our requests, these uuid is just to have something random but this
+// could be anything like "our_item_id_123", so long as it's unique per request
 $promises = [
-    'request_id_1' => $api->market()->getItemMarketListings(3),
-    'request_id_2' => $api->market()->getItemMarketListings(4),
-    'request_id_3' => $api->market()->getItemMarketListings(5),
+    'item_1' => $api->market()->getItemMarketListings(1),
+    'item_2' => $api->market()->getItemMarketListings(2),
+    'item_3' => $api->market()->getItemMarketListings(3),
 ];
 
 // settle our promises and wait for the responses
@@ -43,11 +47,13 @@ $prices = $api->Sight()->handle($results);
  * ]
  */
 
+echo "\nResults of first request (should be empty)\n\n";
 print_r($prices);
-echo "Waiting 5 seconds ....\n\n";
-sleep(5);
+echo "\nWaiting 3 seconds ....\n\n";
+sleep(3);
 
-
+echo "\nResults of next request\n\n";
 $results = $api->Sight()->settle($promises)->wait();
-
 $prices = $api->Sight()->handle($results);
+
+print_r($prices);

@@ -91,8 +91,8 @@ class Sight
             $unwrapped->{$key} = ($response->state == 'fulfilled')
                 ? (new CompanionResponse($response->value, null))->getJson()
                 : (Object)[
-                    'error' => true,
-                    'state' => $response->state,
+                    'error'  => true,
+                    'state'  => $response->state,
                     'reason' => get_class($response->reason) ." -- ". $response->reason->getMessage()
                 ];
         }
@@ -110,8 +110,14 @@ class Sight
             // force an assigned request id
             $request->setRequestId($requestId);
 
-            // modify the method to async
-            $request->setMethod("{$request->method}Async");
+            // if the request is not already async converted, do it
+            if ($request->async === false) {
+                // modify the method to async
+                $request->setMethod("{$request->method}Async");
+    
+                // ensure request is marked as async so we don't repeat this step
+                $request->setAsync();
+            }
 
             // run the async request
             $promises[$requestId] = $this->request($request);

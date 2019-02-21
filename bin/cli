@@ -53,9 +53,7 @@ echo "- Logged in as: {$character->name} ({$character->world}) \n";
 // we have to get the character status (something to do with World Visit when its out.)
 $api->Login()->getCharacterStatus();
 
-print_r(
-    $api->Market()->getItemMarketListings(3)
-);
+print_r( $api->Market()->getItemMarketListings(3) );
 
 print_r(CompanionConfig::getToken());
 

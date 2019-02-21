@@ -20,6 +20,7 @@ class CompanionRequest
     public $uri;
     public $endpoint;
     public $version;
+    public $async = false;
     public $redirect  = [
         'referer' => true,
         'tracked_redirects' => true
@@ -68,6 +69,12 @@ class CompanionRequest
     public function setRequestId(string $requestId): self
     {
         $this->headers['request-id'] = $requestId;
+        return $this;
+    }
+    
+    public function setAsync(): self
+    {
+        $this->async = true;
         return $this;
     }
     

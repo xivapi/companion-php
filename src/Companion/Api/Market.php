@@ -50,7 +50,7 @@ class Market extends Sight
     public function getItemMarketListings(int $itemId)
     {
         $req = new CompanionRequest([
-            'method'   => Method::GET,
+            'method'    => Method::GET,
             'uri'       => CompanionConfig::getToken()->region,
             'endpoint'  => "/market/items/catalog/{$itemId}"
         ]);

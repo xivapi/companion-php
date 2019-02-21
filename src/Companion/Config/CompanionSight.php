@@ -13,6 +13,7 @@ class CompanionSight
         'CLIENT_VERIFY'     => false,
         'QUERY_LOOP_COUNT'  => 5,
         'QUERY_DELAY_MS'    => 800 * 1000,
+        'TOKEN_EXPIRY_HRS'  => 18,
     ];
 
     // custom
