@@ -24,7 +24,7 @@ class CompanionConfig
         if (is_string($token)) {
             // try load an existing token
             if ($existing = self::loadTokens($token)) {
-                self::$token = $existing;
+                self::$token = Token::build($existing);
                 return;
             }
 
@@ -77,14 +77,10 @@ class CompanionConfig
         $tokens = file_get_contents(self::$tokenFilename);
         $tokens = json_decode($tokens);
         
-        // remove any expired tokens after 24hr, i think they expire
-        // after 20+ hrs, or "next day jp" ... idk
         
-        /** @var Token $token */
-        $deadline = time() - (60 * 60 * CompanionSight::get('TOKEN_EXPIRY_HRS'));
         foreach ($tokens as $i => $token) {
             // has it expired?
-            if ($token->created < $deadline) {
+            if (self::hasTokenExpired($token)) {
                 unset($tokens->{$i});
             }
         }
@@ -94,6 +90,14 @@ class CompanionConfig
         }
         
         return $tokens;
+    }
+    
+    /**
+     * States if a token has expired or not
+     */
+    public static function hasTokenExpired($token)
+    {
+        return $token->created < (time() - (60 * 60 * CompanionSight::get('TOKEN_EXPIRY_HRS')));
     }
     
     /**

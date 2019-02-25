@@ -9,6 +9,7 @@
 
 // composer auto loader
 require __DIR__ . '/../vendor/autoload.php';
+$config = require __DIR__ . '/config.php';
 
 use Companion\CompanionApi;
 use Companion\Config\CompanionConfig;
@@ -17,7 +18,18 @@ use Companion\Config\CompanionConfig;
 CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
 
 // create a new token
-$api = new CompanionApi('test_token');
+$api   = new CompanionApi('test_token');
+$token = CompanionConfig::getToken();
+
+// login if the token is not active
+if (CompanionConfig::hasTokenExpired($token)) {
+    echo "Token expired, logging in\n\n";
+    $api->Account()->login($config->user, $config->pass);
+    $api->Login()->loginCharacter($config->cid);
+    $api->Login()->getCharacterStatus();
+} else {
+    echo "Using existing token\n\n";
+}
 
 // enable async
 CompanionConfig::useAsync();
@@ -25,9 +37,9 @@ CompanionConfig::useAsync();
 // build our requests, these uuid is just to have something random but this
 // could be anything like "our_item_id_123", so long as it's unique per request
 $promises = [
-    'item_1' => $api->market()->getItemMarketListings(1),
-    'item_2' => $api->market()->getItemMarketListings(2),
-    'item_3' => $api->market()->getItemMarketListings(3),
+    'item_1' => $api->market()->getItemMarketListings(5),
+    'item_2' => $api->market()->getItemMarketListings(6),
+    'item_3' => $api->market()->getItemMarketListings(7),
 ];
 
 // settle our promises and wait for the responses

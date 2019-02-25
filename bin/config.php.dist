@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * This file is just to provide a ignored config for CLI and CLI_Sync
+ */
+return (object)[
+    'user' => '',
+    'pass' => '',
+    'cid'  => '',
+];

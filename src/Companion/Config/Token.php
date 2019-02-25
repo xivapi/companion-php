@@ -38,11 +38,12 @@ class Token
     {
         return json_decode(json_encode($this), true);
     }
-    
+
     public static function build(\stdClass $existing)
     {
         $obj            = new Token();
         $obj->id        = $existing->id;
+        $obj->name      = $existing->name;
         $obj->character = $existing->character;
         $obj->server    = $existing->server;
         $obj->uid       = $existing->uid;
@@ -51,7 +52,6 @@ class Token
         $obj->salt      = $existing->salt;
         $obj->region    = $existing->region;
         $obj->created   = $existing->created;
-        
         return $obj;
     }
 }

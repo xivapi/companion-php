@@ -73,11 +73,12 @@ class Payments extends Sight
     public function getCurrencyStatus()
     {
         $req = new CompanionRequest([
+            'method'   => Method::GET,
             'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/points/status",
         ]);
-        
-        return $this->get($req)->getJson();
+    
+        return $this->request($req)->getJson();
     }
     
     /**

@@ -34,6 +34,11 @@ class Sight
             return $client->{$request->method}($uri, $options);
         }
 
+        // if we're not looping query, perform it and return response
+        if (CompanionSight::get('QUERY_LOOPED') === false) {
+            return $client->{$request->method}($uri, $options);
+        }
+        
         // query multiple times, as SE provide a "202" Accepted which is
         // their way of saying "Soon(tm)", so... try again.
         foreach (range(0, CompanionSight::get('QUERY_LOOP_COUNT')) as $i) {
@@ -89,7 +94,7 @@ class Sight
 
             // unwrap to our key
             $unwrapped->{$key} = ($response->state == 'fulfilled')
-                ? (new CompanionResponse($response->value, null))->getJson()
+                ? (new CompanionResponse($response->value))->getJson()
                 : (Object)[
                     'error'  => true,
                     'state'  => $response->state,

@@ -49,11 +49,12 @@ class AddressBook extends Sight
     public function getCharacter(string $characterId, int $updatedAt = null)
     {
         $req = new CompanionRequest([
-            'uri'      =>CompanionConfig::getToken()->region,
-            'endpoint' => "/address-book/{$characterId}/profile",
+            'method'    => Method::GET,
+            'uri'       => CompanionConfig::getToken()->region,
+            'endpoint'  => "/address-book/{$characterId}/profile",
         ]);
     
-        return $this->get($req)->getJson();
+        return $this->request($req)->getJson();
     }
     
     /**
@@ -63,10 +64,11 @@ class AddressBook extends Sight
     public function postBlockList(array $json = [])
     {
         $req = new CompanionRequest([
-            'uri'      =>CompanionConfig::getToken()->region,
+            'method'   => Method::POST,
+            'uri'      => CompanionConfig::getToken()->region,
             'endpoint' => "/address-book/blocklist",
         ]);
         
-        return $this->post($req)->getJson();
+        return $this->request($req)->getJson();
     }
 }

@@ -10,7 +10,7 @@ class CompanionResponse
     private $response;
     private $uri;
     
-    public function __construct(Response $response, $uri)
+    public function __construct(Response $response, $uri = null)
     {
         $this->response = $response;
         $this->uri = $uri;

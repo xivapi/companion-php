@@ -5,3 +5,4 @@ src/Companion/Config/tokens.json
 src/Companion/Http/cookie_jar
 bin/profile.json
 bin/tokens.json
+bin/config.php

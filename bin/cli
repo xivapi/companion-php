@@ -9,6 +9,7 @@
 
 // composer auto loader
 require __DIR__ . '/../vendor/autoload.php';
+$config = require __DIR__ . '/config.php';
 
 use Companion\CompanionApi;
 use Companion\Config\CompanionConfig;
@@ -17,7 +18,9 @@ use Companion\Config\CompanionConfig;
 CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
 
 // create a new token
-$api = new CompanionApi('test_token');
+$api   = new CompanionApi('test_token');
+$token = CompanionConfig::getToken();
+print_r($token);
 
 /*
 $loginUrl = $api->Account()->getLoginUrl();
@@ -28,14 +31,13 @@ die;
 
 // login with the profiles username+password, this is not stored anywhere
 // once this has been done once, you don't need to do it for 24 hours for the same profile
-$api->Account()->login('', '');
+$api->Account()->login($config->user, $config->pass);
 
 //
 // Get API-ing!
 //
 
 // Get a list of characters
-
 echo "Getting a list of characters\n";
 foreach ($api->Login()->getCharacters()->accounts[0]->characters as $character) {
     echo "- {$character->cid} :: {$character->name} ({$character->world})\n";
@@ -43,8 +45,7 @@ foreach ($api->Login()->getCharacters()->accounts[0]->characters as $character) 
 
 // Login with a character, this should return the region
 echo "log-in in with a character\n";
-$api->Login()->loginCharacter('a4b2ecf9e20837ab_26052');
-
+$api->Login()->loginCharacter($config->cid);
 
 // Get current logged in character;
 $character = $api->Login()->getCharacter()->character;
