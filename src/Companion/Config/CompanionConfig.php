@@ -77,7 +77,6 @@ class CompanionConfig
         $tokens = file_get_contents(self::$tokenFilename);
         $tokens = json_decode($tokens);
         
-        
         foreach ($tokens as $i => $token) {
             // has it expired?
             if (self::hasTokenExpired($token)) {
@@ -106,6 +105,14 @@ class CompanionConfig
     public static function getToken()
     {
         return self::$token;
+    }
+    
+    /**
+     * Set the token to use (alias to: self::init)
+     */
+    public static function setToken($token): void
+    {
+        self::init($token);
     }
     
     public static function useAsync()
