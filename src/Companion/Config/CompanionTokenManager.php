@@ -5,37 +5,14 @@ namespace Companion\Config;
 /**
  * Companion Token Configuration
  */
-class CompanionConfig
+class CompanionTokenManager
 {
     const TOKEN_FILENAME = __DIR__ .'/tokens.json';
     
-    /** @var Token */
+    /** @var SightToken */
     private static $token;
     /** @var string */
     private static $tokenFilename;
-    /** @var bool */
-    private static $async = false;
-    
-    /**
-     * Initialize Configuration
-     */
-    public static function init($token): void
-    {
-        if (is_string($token)) {
-            // try load an existing token
-            if ($existing = self::loadTokens($token)) {
-                self::$token = Token::build($existing);
-                return;
-            }
-
-            // create a new token
-            self::$token = new Token($token);
-            return;
-        }
-        
-        // build from existing token provided
-        self::$token = Token::build($token);
-    }
     
     /**
      * Set the token filename if you wish to save locally, otherwise it wont save
@@ -108,20 +85,30 @@ class CompanionConfig
     }
     
     /**
-     * Set the token to use (alias to: self::init)
+     * Set the token to use
      */
     public static function setToken($token): void
     {
-        self::init($token);
-    }
+        
+        if (is_string($token)) {
+            // try load an existing token
+            if ($existing = self::loadTokens($token)) {
+                self::$token = SightToken::build($existing);
+                return;
+            }
+        
+            // create a new token
+            self::$token = new SightToken($token);
+            return;
+        }
+        
+        // if this is already a sight token, use it.
+        if (get_class($token) == SightToken::class) {
+            self::$token = $token;
+            return;
+        }
     
-    public static function useAsync()
-    {
-        self::$async = true;
-    }
-    
-    public static function isAsync(): bool
-    {
-        return self::$async;
+        // build from existing token provided
+        self::$token = SightToken::build($token);
     }
 }

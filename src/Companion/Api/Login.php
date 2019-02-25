@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionTokenManager;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\Method;
@@ -30,19 +30,19 @@ class Login extends Sight
      */
     public function postAuth()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::POST,
-            'uri'      => CompanionRequest::URI,
-            'endpoint' => '/login/auth',
-            'requestId' => ID::get(),
-            'query'    => [
-                'token'      => CompanionConfig::getToken()->token,
-                'uid'        => CompanionConfig::getToken()->uid,
-                'request_id' => ID::get()
-            ],
-        ]);
-        
-        return $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::POST,
+                'uri'      => CompanionRequest::URI,
+                'endpoint' => '/login/auth',
+                'requestId' => ID::get(),
+                'query'    => [
+                    'token'      => CompanionTokenManager::getToken()->token,
+                    'uid'        => CompanionTokenManager::getToken()->uid,
+                    'request_id' => ID::get()
+                ],
+            ])
+        );
     }
     
     /**
@@ -51,18 +51,18 @@ class Login extends Sight
     public function getCharacter()
     {
         // log the character into the regional data center endpoint
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => "/login/character",
-        ]);
-        
-        $res = $this->request($req)->getJson();
-        
+        $res = $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => "/login/character",
+            ])
+        );
+
         // record character in token
-        CompanionConfig::getToken()->character = $res->character->cid;
-        CompanionConfig::getToken()->server = $res->character->world;
-        CompanionConfig::saveTokens();
+        CompanionTokenManager::getToken()->character = $res->character->cid;
+        CompanionTokenManager::getToken()->server = $res->character->world;
+        CompanionTokenManager::saveTokens();
         
         return $res;
     }
@@ -72,13 +72,13 @@ class Login extends Sight
      */
     public function getCharacters()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionRequest::URI,
-            'endpoint' => '/login/characters',
-        ]);
-        
-        return $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionRequest::URI,
+                'endpoint' => '/login/characters',
+            ])
+        );
     }
     
     /**
@@ -89,19 +89,20 @@ class Login extends Sight
     public function loginCharacter(string $characterId = null)
     {
         // log the character into the base endpoint
-        $req = new CompanionRequest([
-            'method'   => Method::POST,
-            'uri'      => CompanionRequest::URI,
-            'endpoint' => "/login/characters/{$characterId}",
-            'json'     => [
-                // This is the language of your app
-                'appLocaleType' => 'EU'
-            ]
-        ]);
-    
-        $res = $this->request($req)->getJson();
-        CompanionConfig::getToken()->region = substr($res->region, 0, -1);
-        CompanionConfig::saveTokens();
+        $res = $this->json(
+            new CompanionRequest([
+                'method'   => Method::POST,
+                'uri'      => CompanionRequest::URI,
+                'endpoint' => "/login/characters/{$characterId}",
+                'json'     => [
+                    // This is the language of your app
+                    'appLocaleType' => 'EU'
+                ]
+            ])
+        );
+        
+        CompanionTokenManager::getToken()->region = substr($res->region, 0, -1);
+        CompanionTokenManager::saveTokens();
         
         // call get character on DC as this will log it in.
         $this->getCharacter();
@@ -109,13 +110,13 @@ class Login extends Sight
     
     public function getCharacterStatus()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => '/character/login-status',
-        ]);
-    
-        return $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => '/character/login-status',
+            ])
+        );
     }
     
     /**
@@ -126,13 +127,13 @@ class Login extends Sight
      */
     public function getRegion()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionRequest::URI,
-            'endpoint' => '/login/region',
-        ]);
-        
-        return $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionRequest::URI,
+                'endpoint' => '/login/region',
+            ])
+        );
     }
     
     /**
@@ -142,19 +143,19 @@ class Login extends Sight
      */
     public function postToken()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::POST,
-            'uri'      => CompanionRequest::URI,
-            'endpoint' => '/login/token',
-            'json'     => [
-                // not sure if this has to be the same UID or a new one
-                // if it's a new one, need userId + salt
-                'uid'       => CompanionConfig::getToken()->uid,
-                'platform'  => Account::PLATFORM_ANDROID,
-            ]
-        ]);
-    
-        return $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::POST,
+                'uri'      => CompanionRequest::URI,
+                'endpoint' => '/login/token',
+                'json'     => [
+                    // not sure if this has to be the same UID or a new one
+                    // if it's a new one, need userId + salt
+                    'uid'       => CompanionTokenManager::getToken()->uid,
+                    'platform'  => Account::PLATFORM_ANDROID,
+                ]
+            ])
+        );
     }
     
     /**
@@ -163,18 +164,18 @@ class Login extends Sight
      */
     public function advertisingId()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::POST,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => '/login/advertising-id',
-            'json'     => [
-                // This UUID always seems to be the same
-                'advertisingId'     => 'CDC61D75-5F00-4516-B6A5-F353F1C03179',
-                'isTrackingEnabled' => 1,
-            ]
-        ]);
-    
-        return $this->request($req);
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::POST,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => '/login/advertising-id',
+                'json'     => [
+                    // This UUID always seems to be the same
+                    'advertisingId'     => 'CDC61D75-5F00-4516-B6A5-F353F1C03179',
+                    'isTrackingEnabled' => 1,
+                ]
+            ])
+        );
     }
     
     /**
@@ -188,15 +189,15 @@ class Login extends Sight
      */
     public function fcmToken()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::POST,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => '/login/fcm-token',
-            'json'     => [
-                'fcmToken' => ''
-            ]
-        ]);
-    
-        return $this->request($req);
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::POST,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => '/login/fcm-token',
+                'json'     => [
+                    'fcmToken' => ''
+                ]
+            ])
+        );
     }
 }

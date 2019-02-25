@@ -1,28 +1,23 @@
 #!/usr/bin/env php
 <?php
 
-/**
- *
- * CLI tool to test the Companion API
- *
- */
-
 // composer auto loader
 require __DIR__ . '/../vendor/autoload.php';
 $config = require __DIR__ . '/config.php';
 
 use Companion\CompanionApi;
-use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionTokenManager;
 
 // (optional) set filename for where to save tokens
-CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
+// should be done before initializing the API
+CompanionTokenManager::setTokenFilename(CompanionTokenManager::TOKEN_FILENAME);
 
 // create a new token
 $api   = new CompanionApi('test_token');
-$token = CompanionConfig::getToken();
+$token = $api->Token()->get();
 
 // login if the token is not active
-if (CompanionConfig::hasTokenExpired($token)) {
+if ($api->Token()->hasExpired($token)) {
     echo "Token expired, logging in\n\n";
     $api->Account()->login($config->user, $config->pass);
     $api->Login()->loginCharacter($config->cid);
@@ -32,7 +27,7 @@ if (CompanionConfig::hasTokenExpired($token)) {
 }
 
 // enable async
-CompanionConfig::useAsync();
+$api->useAsync();
 
 // build our requests, these uuid is just to have something random but this
 // could be anything like "our_item_id_123", so long as it's unique per request
@@ -63,6 +58,8 @@ echo "\nResults of first request (should be empty)\n\n";
 print_r($prices);
 echo "\nWaiting 3 seconds ....\n\n";
 sleep(3);
+
+
 
 echo "\nResults of next request\n\n";
 $results = $api->Sight()->settle($promises)->wait();

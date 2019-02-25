@@ -4,7 +4,7 @@ namespace Companion\Config;
 
 use Ramsey\Uuid\Uuid;
 
-class Token
+class SightToken
 {
     /** @var string */
     public $id;
@@ -41,7 +41,7 @@ class Token
 
     public static function build(\stdClass $existing)
     {
-        $obj            = new Token();
+        $obj            = new SightToken();
         $obj->id        = $existing->id;
         $obj->name      = $existing->name;
         $obj->character = $existing->character;

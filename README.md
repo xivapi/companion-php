@@ -21,36 +21,39 @@ composer require xivapi/companion-php
 
 ### Token Management via `CompanionConfig`
 
-> *Note*: It is highly recommended you manage your own tokens in a private database rather than using the in-built token management. You can always access the current token the library is using via: `CompanionConfig::getToken()`.
+> *Note*: It is highly recommended you manage your own tokens in a private database rather than using the in-built token management. You can always access the current token the library is using via: `$api->Token()->get()`.
 
-The library can keep a record of your Sight Access Token information to be able to query against the Sight API. This is optional and by default it will not save any tokens. You can either inform the library to save a token to a file, or you can request your token at anytime and save it however you prefer (db, redis, s3, whatever).
+The library can keep a record of your Sight Access Token information to be able to query against the Sight API. This is optional and by default it will not save any tokens. You can either inform the library to save a token to a file or you can request your token at anytime and save it however you prefer (db, redis, s3, whatever).
 
 If you want the library to record the Sight Access Token information, tell it where to save:
 
-
 ```php
 use Companion\Config\CompanionConfig;
-
 CompanionConfig::setTokenFilename('/path/to/save/token');
 ```
 
-It is extremely important that: The path is not publicly accessible on the internet AND is not within the library itself. The library does provide a default safe place if you provide no parameters, this is:
+It is extremely important that: The path is not publicly accessible on the internet AND is not within the library itself (composer update will delete it).
 
-```php
-CompanionConfig::TOKEN_FILENAME
+Note: a token will be "active" for 20 hours, then considered expired.
+
+## Token API
+
+This is the libraries token interface:
+
 ```
+use Companion\CompanionApi;
 
-The `CompanionConfig` class is static and provides the following methods:
-
-- `CompanionConfig::setTokenFilename('/path/to/save/token');` - Set the file location for saving tokens
-- `CompanionConfig::saveTokens();` - Request that any current token information is saved.
-- `CompanionConfig::loadtokens(streing $tokenName = null);` - Load all saved tokens, or provide a name to load a specific saved token
-- `CompanionConfig::getToken();` - Gets the current active token, you will need this if you plan to save tokens manually.
-
+$api = new CompanionApi();
+$api->Token()->set($token); // Set a token to use, can override any existing token
+$api->Token()->get(); // Returns a SightToken that is currently being used
+$api->Token()->save(); // Save the current token
+$api->Token()->load(); // Load all saved token
+$api->Token()->hasExpired($token); // true||false if a token has expired.
+```
 
 ### Initializing the API
 
-When you initialize the API you need to provide a `token` parameter. This will either be:
+When you initialize the API you can provide a `token` parameter. This will either be:
 
 - a `stdClass` object of an existing token that you have saved.
 - a `string` that can be used as a name for your token. If you are using the libraries built-in Token Management then it will try find an existing token with this name, otherwise a new token object will be created.
@@ -66,6 +69,8 @@ $savedToken = json_decode('{ ... }');
 $api = new CompanionApi($savedToken);
 ```
 
+If you do not provide one, it is expected you use `$api->Token()->set($token);` at some point to assign one.
+
 ### Getting a token!
 
 Once you've decided how you're going to manage your Sight tokens and you're ready to go, we need to decide which method of accessing the API we're going to use. The 2 are:
@@ -79,11 +84,9 @@ Once you've decided how you're going to manage your Sight tokens and you're read
 
 ```php
 use Companion\CompanionApi;
-
 $api      = new CompanionApi('my_token_name');
-
 $loginUrl = $api->Account()->getLoginUrl();
-$token    = CompanionConfig::getToken()->token;
+$token    = $api->Token()->get()->token;
 echo "Token: {$token} - Login URL: \n\n{$loginUrl}\n\n";
 ```
 
@@ -97,7 +100,6 @@ If you are using the built in Token Manager; you can now access this token via t
 
 ```php
 use Companion\CompanionApi;
-
 $api = new CompanionApi('my_token_name');
 $earthShardPrices = $api->market()->getItemMarketListings(5);
 ```
@@ -119,7 +121,7 @@ $api->Account()->login('Username', 'Password');
 Once logged in the API will be ready to go. You can get your token at anytime using:
 
 ```php
-CompanionConfig::getToken();
+$api->Token()->get();
 ```
 
 > *Note:* At this point you must follow the **Character Select Process** flow steps listed further down the documentation before you can query any of the Sight Endpoints.
@@ -128,7 +130,6 @@ If you are using the built in Token Manager; you can now access this token via t
 
 ```php
 use Companion\CompanionApi;
-
 $api = new CompanionApi('my_token_name');
 $earthShardPrices = $api->market()->getItemMarketListings(5);
 ```

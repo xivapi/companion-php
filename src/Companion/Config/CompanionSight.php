@@ -17,8 +17,10 @@ class CompanionSight
         'TOKEN_EXPIRY_HRS'  => 18,
     ];
 
-    // custom
+    /** @var array */
     private static $settings = [];
+    /** @var bool */
+    private static $async = false;
     
     /**
      * Set an option
@@ -37,5 +39,21 @@ class CompanionSight
     public static function get($option)
     {
         return self::$settings[$option] ?? (self::$defaults[$option] ?? false);
+    }
+    
+    /**
+     * Switch to async mode
+     */
+    public static function useAsync()
+    {
+        self::$async = true;
+    }
+    
+    /**
+     * State if in async mode or not
+     */
+    public static function isAsync(): bool
+    {
+        return self::$async;
     }
 }

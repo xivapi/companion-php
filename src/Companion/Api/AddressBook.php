@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionTokenManager;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\Method;
@@ -20,11 +20,11 @@ class AddressBook extends Sight
     {
         $req = new CompanionRequest([
             'method'   => Method::DELETE,
-            'uri'      => CompanionConfig::getToken()->region,
+            'uri'      => CompanionTokenManager::getToken()->region,
             'endpoint' => "/address-book/blocklist",
         ]);
     
-        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
+        return $this->json($req);
     }
     
     /**
@@ -35,11 +35,11 @@ class AddressBook extends Sight
     {
         $req = new CompanionRequest([
             'method'   => Method::GET,
-            'uri'      => CompanionConfig::getToken()->region,
+            'uri'      => CompanionTokenManager::getToken()->region,
             'endpoint' => "/address-book",
         ]);
     
-        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
+        return $this->json($req);
     }
     
     /**
@@ -50,11 +50,11 @@ class AddressBook extends Sight
     {
         $req = new CompanionRequest([
             'method'    => Method::GET,
-            'uri'       => CompanionConfig::getToken()->region,
+            'uri'       => CompanionTokenManager::getToken()->region,
             'endpoint'  => "/address-book/{$characterId}/profile",
         ]);
     
-        return $this->request($req)->getJson();
+        return $this->json($req);
     }
     
     /**
@@ -65,10 +65,10 @@ class AddressBook extends Sight
     {
         $req = new CompanionRequest([
             'method'   => Method::POST,
-            'uri'      => CompanionConfig::getToken()->region,
+            'uri'      => CompanionTokenManager::getToken()->region,
             'endpoint' => "/address-book/blocklist",
         ]);
         
-        return $this->request($req)->getJson();
+        return $this->json($req);
     }
 }

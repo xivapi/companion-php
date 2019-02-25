@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionTokenManager;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\Method;
@@ -34,13 +34,13 @@ class Market extends Sight
      */
     public function getItemMarketHqListings(int $itemId)
     {
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => "/market/items/catalog/{$itemId}/hq",
-        ]);
-    
-        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => "/market/items/catalog/{$itemId}/hq",
+            ])
+        );
     }
     
     /**
@@ -49,13 +49,13 @@ class Market extends Sight
      */
     public function getItemMarketListings(int $itemId)
     {
-        $req = new CompanionRequest([
-            'method'    => Method::GET,
-            'uri'       => CompanionConfig::getToken()->region,
-            'endpoint'  => "/market/items/catalog/{$itemId}"
-        ]);
-
-        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'    => Method::GET,
+                'uri'       => CompanionTokenManager::getToken()->region,
+                'endpoint'  => "/market/items/catalog/{$itemId}"
+            ])
+        );
     }
     
     /**
@@ -63,13 +63,13 @@ class Market extends Sight
      */
     public function getMarketListingsByCategory(int $categoryId)
     {
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => "/market/items/category/{$categoryId}",
-        ]);
-    
-        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => "/market/items/category/{$categoryId}",
+            ])
+        );
     }
     
     /**
@@ -77,13 +77,13 @@ class Market extends Sight
      */
     public function getRetainerInfo(string $cid)
     {
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => "/market/retainers/{$cid}",
-        ]);
-    
-        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => "/market/retainers/{$cid}",
+            ])
+        );
     }
     
     /**
@@ -91,13 +91,13 @@ class Market extends Sight
      */
     public function getTransactionHistory(int $itemId)
     {
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => "/market/items/history/catalog/{$itemId}",
-        ]);
-    
-        return CompanionConfig::isAsync() ? $req : $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => "/market/items/history/catalog/{$itemId}",
+            ])
+        );
     }
     
     /**

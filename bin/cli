@@ -1,36 +1,32 @@
 #!/usr/bin/env php
 <?php
 
-/**
- *
- * CLI tool to test the Companion API
- *
- */
-
 // composer auto loader
 require __DIR__ . '/../vendor/autoload.php';
 $config = require __DIR__ . '/config.php';
 
 use Companion\CompanionApi;
-use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionTokenManager;
 
 // (optional) set filename for where to save tokens
-CompanionConfig::setTokenFilename(CompanionConfig::TOKEN_FILENAME);
+CompanionTokenManager::setTokenFilename(CompanionTokenManager::TOKEN_FILENAME);
 
 // create a new token
 $api   = new CompanionApi('test_token');
-$token = CompanionConfig::getToken();
-print_r($token);
 
-/*
+// print token
+print_r( $api->Token()->get() );
+
+/**
 $loginUrl = $api->Account()->getLoginUrl();
-$token    = CompanionConfig::getToken()->token;
-echo "Token: {$token} - Login URL: \n\n{$loginUrl}\n\n";
+$tokenId  = $api->Token()->get()->token;
+echo "Token: {$tokenId} - Login URL: \n\n{$loginUrl}\n\n";
 die;
 */
 
 // login with the profiles username+password, this is not stored anywhere
 // once this has been done once, you don't need to do it for 24 hours for the same profile
+echo "Logging into account: {$config->user}\n";
 $api->Account()->login($config->user, $config->pass);
 
 //
@@ -56,7 +52,7 @@ $api->Login()->getCharacterStatus();
 
 print_r( $api->Market()->getItemMarketListings(3) );
 
-print_r(CompanionConfig::getToken());
+print_r( $api->Token()->get() );
 
 // (optional) save our token
-CompanionConfig::saveTokens();
+$api->Token()->save();

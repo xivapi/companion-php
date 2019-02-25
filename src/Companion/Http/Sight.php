@@ -2,7 +2,6 @@
 
 namespace Companion\Http;
 
-use Companion\Config\CompanionConfig;
 use Companion\Config\CompanionSight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\CompanionResponse;
@@ -16,9 +15,38 @@ use GuzzleHttp\Psr7\Response;
 class Sight
 {
     /**
+     * Perform a sight request using a CompanionRequest
+     */
+    public function json(CompanionRequest $req)
+    {
+        // if async, we don't need to do anything
+        if (CompanionSight::isAsync()) {
+            return $req;
+        }
+        
+        return $this->handleRequest($req)->getJson();
+    }
+    
+    /**
+     * Perform a request and return the body using a CompanionRequest
+     */
+    public function body(CompanionRequest $req)
+    {
+        return $this->handleRequest($req)->getBody();
+    }
+    
+    /**
+     * Perform a request and return the status using a CompanionRequest
+     */
+    public function statusCode(CompanionRequest $req)
+    {
+        return $this->handleRequest($req)->getStatusCode();
+    }
+    
+    /**
      * Send a request to the Companion API
      */
-    public function request(CompanionRequest $request)
+    private function handleRequest(CompanionRequest $request)
     {
         $client = new Client([
             'cookies' => Cookies::get(),
@@ -30,7 +58,7 @@ class Sight
         $options = $request->getOptions();
 
         // if async, return the request
-        if (CompanionConfig::isAsync()) {
+        if (CompanionSight::isAsync()) {
             return $client->{$request->method}($uri, $options);
         }
 
@@ -125,7 +153,7 @@ class Sight
             }
 
             // run the async request
-            $promises[$requestId] = $this->request($request);
+            $promises[$requestId] = $this->handleRequest($request);
         }
 
         return $promises;

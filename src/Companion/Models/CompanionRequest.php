@@ -2,7 +2,7 @@
 
 namespace Companion\Models;
 
-use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionTokenManager;
 use Companion\Utils\ID;
 use GuzzleHttp\RequestOptions;
 
@@ -56,7 +56,7 @@ class CompanionRequest
         $this->headers['Accept-Encoding'] = 'br, gzip, deflate';
         $this->headers['User-Agent']      = 'ffxivcomapp-e/1.0.5.0 CFNetwork/976 Darwin/18.2.0';
         $this->headers['request-id']      = $config->requestId ?? ID::uuid();
-        $this->headers['token']           = CompanionConfig::getToken()->token;
+        $this->headers['token']           = $config->token ?? CompanionTokenManager::getToken()->token;
         $this->headers                    = array_merge($this->headers, $config->headers ?? []);
     }
 

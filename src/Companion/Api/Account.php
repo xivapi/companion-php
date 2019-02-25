@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionTokenManager;
 use Companion\Http\Cookies;
 use Companion\Http\Pem;
 use Companion\Http\Sight;
@@ -53,14 +53,14 @@ class Account extends Sight
     public function getLoginUrl()
     {
         // Generate a new user uuid
-        CompanionConfig::getToken()->userId = ID::uuid();
-        CompanionConfig::saveTokens();
+        CompanionTokenManager::getToken()->userId = ID::uuid();
+        CompanionTokenManager::saveTokens();
         
         // Get a token from SE
         $response = $this->getToken();
-        CompanionConfig::getToken()->token = $response->token;
-        CompanionConfig::getToken()->salt  = $response->salt;
-        CompanionConfig::saveTokens();
+        CompanionTokenManager::getToken()->token = $response->token;
+        CompanionTokenManager::getToken()->salt  = $response->salt;
+        CompanionTokenManager::saveTokens();
         
         // Get OAuth URI
         $this->loginUri = $this->buildLoginUri();
@@ -76,18 +76,20 @@ class Account extends Sight
         $rsa = new RSA();
         $rsa->loadKey(Pem::get());
         $rsa->setEncryptionMode(RSA::ENCRYPTION_PKCS1);
-        $uid = base64_encode($rsa->encrypt(CompanionConfig::getToken()->userId));
+        $uid = base64_encode($rsa->encrypt(CompanionTokenManager::getToken()->userId));
         
-        return $this->request(new CompanionRequest([
-            'method'    => Method::POST,
-            'uri'       => CompanionRequest::URI,
-            'endpoint'  => '/login/token',
-            'requestId' => ID::get(),
-            'json'      => [
-                'platform'  => self::PLATFORM_ANDROID, // < THIS IS IMPORTANT
-                'uid'       => $uid
-            ]
-        ]))->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'    => Method::POST,
+                'uri'       => CompanionRequest::URI,
+                'endpoint'  => '/login/token',
+                'requestId' => ID::get(),
+                'json'      => [
+                    'platform'  => self::PLATFORM_ANDROID, // < THIS IS IMPORTANT
+                    'uid'       => $uid
+                ]
+            ])
+        );
     }
     
     /**
@@ -96,12 +98,14 @@ class Account extends Sight
      */
     private function autoLoginToProfileAccount(string $username, string $password)
     {
-        $html = $this->request(new CompanionRequest([
-            'method'    => Method::GET,
-            'uri'       => $this->loginUri,
-            'version'   => '',
-            'requestId' => ID::get()
-        ]))->getBody();
+        $html = $this->body(
+            new CompanionRequest([
+                'method'    => Method::GET,
+                'uri'       => $this->loginUri,
+                'version'   => '',
+                'requestId' => ID::get()
+            ])
+        );
         
         // if this response contains "cis_sessid" then we was auto-logged in using cookies
         // otherwise it's the login form and we need to login to get the cis_sessid
@@ -119,15 +123,15 @@ class Account extends Sight
                 'password' => $password,
             ];
             
-            $res = $this->request(new CompanionRequest([
-                'method'    => Method::POST,
-                'uri'       => CompanionRequest::URI_SE . "/oauth/oa/{$action}",
-                'version'   => '',
-                'requestId' => ID::get(),
-                'form'      => $formData,
-            ]));
-            
-            $html = $res->getBody();
+            $html = $this->body(
+                new CompanionRequest([
+                    'method'    => Method::POST,
+                    'uri'       => CompanionRequest::URI_SE . "/oauth/oa/{$action}",
+                    'version'   => '',
+                    'requestId' => ID::get(),
+                    'form'      => $formData,
+                ])
+            );
         }
         
         // todo - convert to: https://github.com/xivapi/companion-php
@@ -153,7 +157,7 @@ class Account extends Sight
         ]);
         
         // this will be another form with some other bits that the app just forcefully submits via js
-        if ($this->request($req)->getStatusCode() !== 202) {
+        if ($this->statusCode($req) !== 202) {
             throw new \Exception('Login status could not be validated.');
         }
     }
@@ -177,15 +181,15 @@ class Account extends Sight
     private function buildCompanionOAuthRedirectUri()
     {
         $uid = PBKDF2::encrypt(
-            CompanionConfig::getToken()->userId,
-            CompanionConfig::getToken()->salt
+            CompanionTokenManager::getToken()->userId,
+            CompanionTokenManager::getToken()->salt
         );
     
-        CompanionConfig::getToken()->uid = $uid;
-        CompanionConfig::saveTokens();
+        CompanionTokenManager::getToken()->uid = $uid;
+        CompanionTokenManager::saveTokens();
         
         return CompanionRequest::OAUTH_CALLBACK .'?'. http_build_query([
-            'token'      => CompanionConfig::getToken()->token,
+            'token'      => CompanionTokenManager::getToken()->token,
             'uid'        => $uid,
             'request_id' => ID::get(),
         ]);

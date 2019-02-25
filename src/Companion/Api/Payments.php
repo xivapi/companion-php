@@ -2,7 +2,7 @@
 
 namespace Companion\Api;
 
-use Companion\Config\CompanionConfig;
+use Companion\Config\CompanionTokenManager;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\Method;
@@ -18,13 +18,13 @@ class Payments extends Sight
      */
     public function acquirePoints()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::POST,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => "/points/kupo-nuts",
-        ]);
-    
-        return $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::POST,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => "/points/kupo-nuts",
+            ])
+        );
     }
     
     /**
@@ -72,13 +72,13 @@ class Payments extends Sight
      */
     public function getCurrencyStatus()
     {
-        $req = new CompanionRequest([
-            'method'   => Method::GET,
-            'uri'      => CompanionConfig::getToken()->region,
-            'endpoint' => "/points/status",
-        ]);
-    
-        return $this->request($req)->getJson();
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => "/points/status",
+            ])
+        );
     }
     
     /**

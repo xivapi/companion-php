@@ -2,9 +2,6 @@
 
 namespace Companion;
 
-use Companion\Http\Sight;
-use Companion\Models\CompanionResponse;
-
 use Companion\Api\AddressBook;
 use Companion\Api\ChatRoom;
 use Companion\Api\Item;
@@ -14,7 +11,9 @@ use Companion\Api\Account;
 use Companion\Api\Payments;
 use Companion\Api\Report;
 use Companion\Api\Schedule;
-use Companion\Config\CompanionConfig;
+use Companion\Api\Token;
+use Companion\Config\CompanionSight;
+use Companion\Http\Sight;
 
 class CompanionApi
 {
@@ -25,10 +24,35 @@ class CompanionApi
      * - a stdClass of an existing token
      * - a string of for a name for a new token
      */
-    public function __construct($token)
+    public function __construct($token = null)
     {
-        CompanionConfig::init($token);
+        if ($token) {
+            $this->Token()->set($token);
+        }
     }
+    
+    /**
+     * Provides nicer access to static token methods
+     */
+    public function Token(): Token
+    {
+        return $this->getClass(Token::class);
+    }
+    
+    /**
+     * Switch to async mode
+     */
+    public function useAsync(): self
+    {
+        CompanionSight::useAsync();
+        return $this;
+    }
+    
+    /**
+     * --------------------------------------------------------------------------
+     * Sight API
+     * --------------------------------------------------------------------------
+     */
     
     public function Account(): Account
     {
