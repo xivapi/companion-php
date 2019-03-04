@@ -9,12 +9,18 @@ class CompanionSight
 {
     // defaults
     private static $defaults = [
+        // how long on the guzzle client before timing ouit
         'CLIENT_TIMEOUT'    => 30,
+        // should the guzzle client verify the sight https cert
         'CLIENT_VERIFY'     => false,
+        // should we keep looping to ensure a result from sight?
         'QUERY_LOOPED'      => true,
+        // how many loops should sight perform?
         'QUERY_LOOP_COUNT'  => 5,
+        // at what interval delays should sight perform, this is in micro-seconds
         'QUERY_DELAY_MS'    => 800 * 1000,
-        'TOKEN_EXPIRY_HRS'  => 18,
+        // the estimated token expiry time, it should last 24 hours but SE are being inconsistent...
+        'TOKEN_EXPIRY_HRS'  => 12,
     ];
 
     /** @var array */

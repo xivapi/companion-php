@@ -34,8 +34,6 @@ CompanionConfig::setTokenFilename('/path/to/save/token');
 
 It is extremely important that: The path is not publicly accessible on the internet AND is not within the library itself (composer update will delete it).
 
-Note: a token will be "active" for 20 hours, then considered expired.
-
 ## Token API
 
 This is the libraries token interface:
@@ -48,7 +46,7 @@ $api->Token()->set($token); // Set a token to use, can override any existing tok
 $api->Token()->get(); // Returns a SightToken that is currently being used
 $api->Token()->save(); // Save the current token
 $api->Token()->load(); // Load all saved token
-$api->Token()->hasExpired($token); // true||false if a token has expired.
+$api->Token()->hasExpired(timestamp); // true||false if a token has expired based on a timestamp
 ```
 
 ### Initializing the API

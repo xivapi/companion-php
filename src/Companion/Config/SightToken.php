@@ -26,12 +26,14 @@ class SightToken
     public $region;
     /** @var int */
     public $created;
+    /** @var int */
+    public $updated;
     
     public function __construct(string $name = null)
     {
-        $this->id      = Uuid::uuid4()->toString();
-        $this->name    = $name;
-        $this->created = time();
+        $this->id           = Uuid::uuid4()->toString();
+        $this->name         = $name;
+        $this->created      = time();
     }
     
     public function toArray(): array
@@ -41,17 +43,18 @@ class SightToken
 
     public static function build(\stdClass $existing)
     {
-        $obj            = new SightToken();
-        $obj->id        = $existing->id;
-        $obj->name      = $existing->name;
-        $obj->character = $existing->character;
-        $obj->server    = $existing->server;
-        $obj->uid       = $existing->uid;
-        $obj->userId    = $existing->userId;
-        $obj->token     = $existing->token;
-        $obj->salt      = $existing->salt;
-        $obj->region    = $existing->region;
-        $obj->created   = $existing->created;
+        $obj             = new SightToken();
+        $obj->id         = $existing->id;
+        $obj->name       = $existing->name;
+        $obj->character  = $existing->character;
+        $obj->server     = $existing->server;
+        $obj->uid        = $existing->uid;
+        $obj->userId     = $existing->userId;
+        $obj->token      = $existing->token;
+        $obj->salt       = $existing->salt;
+        $obj->region     = $existing->region;
+        $obj->created    = $existing->created;
+        $obj->updated    = $existing->updated;
         return $obj;
     }
 }

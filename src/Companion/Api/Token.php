@@ -17,7 +17,7 @@ class Token
         CompanionTokenManager::setToken($token);
         
         // check it hasn't expired
-        if (CompanionTokenManager::hasTokenExpired(CompanionTokenManager::getToken())) {
+        if (CompanionTokenManager::hasExpired(CompanionTokenManager::getToken())) {
             throw new TokenExpiredException();
         }
         
@@ -54,6 +54,6 @@ class Token
      */
     public function hasExpired($token): bool
     {
-        return CompanionTokenManager::hasTokenExpired($token);
+        return CompanionTokenManager::hasExpired($token);
     }
 }

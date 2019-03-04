@@ -36,9 +36,12 @@ class CompanionTokenManager
             return;
         }
         
+        self::$token->updated = time();
+        
         $tokens = self::loadTokens();
         $tokens->{self::$token->name} = self::$token->toArray();
         $tokens = json_encode($tokens, JSON_PRETTY_PRINT);
+        
         file_put_contents(self::$tokenFilename, $tokens);
     }
     
@@ -53,13 +56,6 @@ class CompanionTokenManager
         
         $tokens = file_get_contents(self::$tokenFilename);
         $tokens = json_decode($tokens);
-        
-        foreach ($tokens as $i => $token) {
-            // has it expired?
-            if (self::hasTokenExpired($token)) {
-                unset($tokens->{$i});
-            }
-        }
 
         if ($tokens && $tokenName) {
             return $tokens->{$tokenName} ?? null;
@@ -69,11 +65,14 @@ class CompanionTokenManager
     }
     
     /**
-     * States if a token has expired or not
+     * States if a token has expired or not via a provided timestamp, the reason
+     * the library does not maintain a timestamp is because there are various stages when
+     * a "confirmed login" is, such as getting a character, or manually logging in. It is
+     * the developers job to maintain a logged in state based on their rules.
      */
-    public static function hasTokenExpired($token)
+    public static function hasExpired($timestamp)
     {
-        return $token->created < (time() - (60 * 60 * CompanionSight::get('TOKEN_EXPIRY_HRS')));
+        return $timestamp < (time() - (60 * 60 * CompanionSight::get('TOKEN_EXPIRY_HRS')));
     }
     
     /**
