@@ -44,17 +44,17 @@ class SightToken
     public static function build(\stdClass $existing)
     {
         $obj             = new SightToken();
-        $obj->id         = $existing->id;
-        $obj->name       = $existing->name;
-        $obj->character  = $existing->character;
-        $obj->server     = $existing->server;
-        $obj->uid        = $existing->uid;
-        $obj->userId     = $existing->userId;
-        $obj->token      = $existing->token;
-        $obj->salt       = $existing->salt;
-        $obj->region     = $existing->region;
-        $obj->created    = $existing->created;
-        $obj->updated    = $existing->updated;
+        $obj->id         = $existing->id ?? Uuid::uuid4()->toString();
+        $obj->name       = $existing->name ?? null;
+        $obj->character  = $existing->character ?? null;
+        $obj->server     = $existing->server ?? null;
+        $obj->uid        = $existing->uid ?? null;
+        $obj->userId     = $existing->userId ?? null;
+        $obj->token      = $existing->token ?? null;
+        $obj->salt       = $existing->salt ?? null;
+        $obj->region     = $existing->region ?? null;
+        $obj->created    = $existing->created ?? null;
+        $obj->updated    = $existing->updated ?? null;
         return $obj;
     }
 }

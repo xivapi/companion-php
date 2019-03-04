@@ -9,7 +9,7 @@ class CompanionSight
 {
     // defaults
     private static $defaults = [
-        // how long on the guzzle client before timing ouit
+        // how long on the guzzle client before timing out
         'CLIENT_TIMEOUT'    => 30,
         // should the guzzle client verify the sight https cert
         'CLIENT_VERIFY'     => false,

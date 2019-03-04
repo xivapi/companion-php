@@ -17,7 +17,7 @@ $api   = new CompanionApi('test_token');
 $token = $api->Token()->get();
 
 // login if the token is not active
-if ($api->Token()->hasExpired($token)) {
+if ($api->Token()->hasExpired($token->updated)) {
     echo "Token expired, logging in\n\n";
     $api->Account()->login($config->user, $config->pass);
     $api->Login()->loginCharacter($config->cid);
