@@ -6,6 +6,25 @@ To learn more about the FFXIV Companion App, read the [Research Doc](https://git
 
 If you are just interested in market data and not access Companion App features, have a look at XIVAPI: https://xivapi.com/docs/Market
 
+## !!! -- ⚠️ BE AWARE - BANS ⚠️ -- !!!
+
+**Can you be banned using this? YES**
+
+**Really?** Possibly.
+
+So. In March 2019 I ran a service that queried every item on every server to record prices. I was performing around 100-150+ requests/second. Performing millions of updates (each item is 4 requests) every hour. I received around 30,000 errors but compared to several million successful responses I did not care.
+
+All 3 accounts that I used were immediately de-activated, then a few days later were permanently banned for violating the Terms of Service. The violations will include: Cheating, Automation and Affecting Services. (A mini DDOS essentially...)
+
+If you use this library, you are using it at your own risk. I have used it with my personal accounts and they have not received bans even though they come from the same IP and even have performed very "dodgy" requests (like funny headers tht SE could log...)
+
+Basically right now; if you take the piss and spam their service, expect a ban. Keep your requests low, like 10 items a minute low...
+
+**If you want to be fully safe:**
+
+Buy a new account. You only need the base game, and you only have to create the chracter. You don't even have to do anything with the character, just make it and immediately logout. Once a character is created it can be used on Companion after an hour or so (cache). An account with 30 days free is $10 on the official SE site, about the price of a sub :)
+
+
 ## Terminology:
 
 - **Companion**: The Official FFXIV Companioon Mobile App.
