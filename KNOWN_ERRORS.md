@@ -8,3 +8,4 @@ These are codes which I have seen from the Companion API and observed their beha
 - **311004** = Don't know what causes this, maybe not logging into game for some time?
 - **311007** = App says session expired, but it's because the cookie wasn't set properly (or at all) so you're technically not logged in
 - **311009** = likely not confirmed character status, happens if you do not call that endpoint
+- **319201** = Server down for EMERGENCY maintenance.
