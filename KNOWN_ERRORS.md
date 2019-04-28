@@ -5,8 +5,10 @@ These are codes which I have seen from the Companion API and observed their beha
 ## List
 
 - **111001** = Session has expired, the token will not work. Either it has been 24 hours since creation or it was not registered on the companion app correctly.
-- **340000** = Shit broke on SE's end. You will get this a lot if you spam their service (along with a permanent account Ban).
+- **210010** = Shit broke, "unexpected error", happened right after world visit.
 - **311004** = Don't know what causes this, maybe not logging into game for some time?
 - **311007** = App says session expired, but it's because the cookie wasn't set properly (or at all) so you're technically not logged in
-- **311009** = likely not confirmed character status, happens if you do not call that endpoint
-- **319201** = Server down for EMERGENCY maintenance.
+- **311009** = likely not confirmed character status, happens if you do not callthat endpoint
+- **319201** = Server being access has gone down for emergency maintenance
+
+- **340000** = Shit broke on SE's end. You will get this a lot if you spam their service (along with a permanent account Ban).
