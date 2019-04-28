@@ -12,12 +12,12 @@ use Companion\Config\CompanionTokenManager;
 CompanionTokenManager::setTokenFilename(CompanionTokenManager::TOKEN_FILENAME);
 
 // create a new token
-$api   = new CompanionApi('test_token');
+$api = new CompanionApi('test_'. time());
 
 // print token
 print_r( $api->Token()->get() );
 
-/**
+/*
 $loginUrl = $api->Account()->getLoginUrl();
 $tokenId  = $api->Token()->get()->token;
 echo "Token: {$tokenId} - Login URL: \n\n{$loginUrl}\n\n";
@@ -48,7 +48,7 @@ $character = $api->Login()->getCharacter()->character;
 echo "- Logged in as: {$character->name} ({$character->world}) \n";
 
 // we have to get the character status (something to do with World Visit when its out.)
-$api->Login()->getCharacterStatus();
+$api->Login()->getCharacterWorlds();
 
 print_r( $api->Market()->getItemMarketListings(3) );
 

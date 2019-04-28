@@ -11,7 +11,7 @@ class CookiesJar extends FileCookieJar
     {
         // do not set the expiry above 6 hours on the same day.
         $cookie->setDomain('secure.square-enix.com');
-        $cookie->setExpires(time() + (60*60*24*30));
+        $cookie->setExpires(time() + (60*60*24*6));
         $cookie->setPath('/');
         $cookie->setSecure(true);
         

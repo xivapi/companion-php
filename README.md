@@ -143,6 +143,8 @@ $api->Token()->get();
 
 > *Note:* At this point you must follow the **Character Select Process** flow steps listed further down the documentation before you can query any of the Sight Endpoints.
 
+> *Note:* For getting market items you MUST provide the server your character is currently on. If its on your home world, no argument is required as the token will be used, if you're visiting another world then that servers name must be provided as the 2nd argument.
+
 If you are using the built in Token Manager; you can now access this token via the name `profile_name`. This means all future queries (once you have selected a character) can be setup like so:
 
 ```php
@@ -180,10 +182,11 @@ $character = $api->login()->getCharacter()->character;
 echo "- Logged in as: {$character->name} ({$character->world}) \n";
 ```
 
-Now that we've told it what character to use, we have to confirm its status. This is a new addition in Patch 4.4 and I believe it will be used for when World Visit system is in place. For now it is a requirement and returns the current world and your home world:
+Now that we've told it what character to use, we have to confirm its worlds status. This is a new addition in Patch 4.4 and 
+I believe it will be used for when World Visit system is in place. For now it is a requirement and returns the current world and your home world:
 
 ```php
-$api->login()->getCharacterStatus();
+$api->login()->getCharacterWorlds();
 ```
 
 Once you have done this, you can now access the market board as well as any other Sight endpoint! You can find all API calls below.

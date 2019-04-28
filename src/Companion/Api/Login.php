@@ -3,6 +3,7 @@
 namespace Companion\Api;
 
 use Companion\Config\CompanionTokenManager;
+use Companion\Config\SightConfig;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\Method;
@@ -96,7 +97,7 @@ class Login extends Sight
                 'endpoint' => "/login/characters/{$characterId}",
                 'json'     => [
                     // This is the language of your app
-                    'appLocaleType' => 'EU'
+                    'appLocaleType' => SightConfig::APP_LOCALE_TYPE,
                 ]
             ])
         );
@@ -108,6 +109,9 @@ class Login extends Sight
         $this->getCharacter();
     }
     
+    /**
+     * Get character status
+     */
     public function getCharacterStatus()
     {
         return $this->json(
@@ -115,6 +119,21 @@ class Login extends Sight
                 'method'   => Method::GET,
                 'uri'      => CompanionTokenManager::getToken()->region,
                 'endpoint' => '/character/login-status',
+            ])
+        );
+    }
+    
+    /**
+     * Get character worlds, this shows what world you're currently in
+     * and what your home world is.
+     */
+    public function getCharacterWorlds()
+    {
+        return $this->json(
+            new CompanionRequest([
+                'method'   => Method::GET,
+                'uri'      => CompanionTokenManager::getToken()->region,
+                'endpoint' => '/character/worlds',
             ])
         );
     }
@@ -151,8 +170,9 @@ class Login extends Sight
                 'json'     => [
                     // not sure if this has to be the same UID or a new one
                     // if it's a new one, need userId + salt
-                    'uid'       => CompanionTokenManager::getToken()->uid,
-                    'platform'  => Account::PLATFORM_ANDROID,
+                    'uid'        => CompanionTokenManager::getToken()->uid,
+                    'appVersion' => SightConfig::APP_VERSION,
+                    'platform'   => SightConfig::PLATFORM_ANDROID,
                 ]
             ])
         );
@@ -171,8 +191,8 @@ class Login extends Sight
                 'endpoint' => '/login/advertising-id',
                 'json'     => [
                     // This UUID always seems to be the same
-                    'advertisingId'     => 'CDC61D75-5F00-4516-B6A5-F353F1C03179',
-                    'isTrackingEnabled' => 1,
+                    'advertisingId'     => SightConfig::ADVERTISING_ID,
+                    'isTrackingEnabled' => SightConfig::ADVERTISING_ENABLED,
                 ]
             ])
         );
@@ -195,7 +215,7 @@ class Login extends Sight
                 'uri'      => CompanionTokenManager::getToken()->region,
                 'endpoint' => '/login/fcm-token',
                 'json'     => [
-                    'fcmToken' => ''
+                    'fcmToken' => SightConfig::FCM_TOKEN
                 ]
             ])
         );

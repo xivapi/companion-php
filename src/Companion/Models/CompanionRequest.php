@@ -3,6 +3,7 @@
 namespace Companion\Models;
 
 use Companion\Config\CompanionTokenManager;
+use Companion\Config\SightConfig;
 use Companion\Utils\ID;
 use GuzzleHttp\RequestOptions;
 
@@ -11,10 +12,9 @@ class CompanionRequest
     const SQEX_AUTH_URI     = "https://secure.square-enix.com/oauth/oa/oauthauth";
     const SQEX_LOGIN_URI    = "https://secure.square-enix.com/oauth/oa/oauthlogin";
     const OAUTH_CALLBACK    = 'https://companion.finalfantasyxiv.com/api/0/auth/callback';
-    
-    const URI     = 'https://companion.finalfantasyxiv.com';
-    const URI_SE  = 'https://secure.square-enix.com';
-    const VERSION = '/sight-v060/sight';
+    const URI               = 'https://companion.finalfantasyxiv.com';
+    const URI_SE            = 'https://secure.square-enix.com';
+    const VERSION           = '/sight-v060/sight';
 
     public $method;
     public $uri;
@@ -51,12 +51,18 @@ class CompanionRequest
             $this->version = null;
         }
     
-        $this->headers['Accept']          = '*/*';
-        $this->headers['Accept-Language'] = 'en-gb';
-        $this->headers['Accept-Encoding'] = 'br, gzip, deflate';
-        $this->headers['User-Agent']      = 'ffxivcomapp-e/1.0.5.0 CFNetwork/976 Darwin/18.2.0';
+        $this->headers['Accept']          = $config->accept ?? SightConfig::ACCEPT;
+        $this->headers['Accept-Language'] = $config->acceptLanguage ?? SightConfig::ACCEPT_LANGUAGE;
+        $this->headers['Accept-Encoding'] = $config->acceptEncoding ?? SightConfig::ACCEPT_ENCODING;
+        $this->headers['User-Agent']      = $config->userAgent ?? SightConfig::USER_AGENT;
         $this->headers['request-id']      = $config->requestId ?? ID::uuid();
         $this->headers['token']           = $config->token ?? CompanionTokenManager::getToken()->token;
+        
+        // only set content type when the version exists (thus hitting the API)
+        if ($this->version) {
+            $this->headers['Content-Type'] = $config->contentType ?? SightConfig::CONTENT_TYPE;
+        }
+        
         $this->headers                    = array_merge($this->headers, $config->headers ?? []);
     }
 

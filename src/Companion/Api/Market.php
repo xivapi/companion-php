@@ -3,6 +3,7 @@
 namespace Companion\Api;
 
 use Companion\Config\CompanionTokenManager;
+use Companion\Exceptions\CompanionServerException;
 use Companion\Http\Sight;
 use Companion\Models\CompanionRequest;
 use Companion\Models\Method;
@@ -32,13 +33,22 @@ class Market extends Sight
      * catalogId = itemId
      * @GET("market/items/catalog/{catalogId}/hq")
      */
-    public function getItemMarketHqListings(int $itemId)
+    public function getItemMarketHqListings(int $itemId, string $server = null)
     {
+        $server = $server ?: CompanionTokenManager::getToken()->server;
+    
+        if ($server == null) {
+            throw new CompanionServerException('You must provide a server with requests to this endpoint.');
+        }
+        
         return $this->json(
             new CompanionRequest([
                 'method'   => Method::GET,
                 'uri'      => CompanionTokenManager::getToken()->region,
                 'endpoint' => "/market/items/catalog/{$itemId}/hq",
+                'query'    => [
+                    'worldName' => $server
+                ]
             ])
         );
     }
@@ -47,13 +57,22 @@ class Market extends Sight
      * catalogId = itemId
      * @GET("market/items/catalog/{itemId}")
      */
-    public function getItemMarketListings(int $itemId)
+    public function getItemMarketListings(int $itemId, string $server = null)
     {
+        $server = $server ?: CompanionTokenManager::getToken()->server;
+    
+        if ($server == null) {
+            throw new CompanionServerException('You must provide a server with requests to this endpoint.');
+        }
+        
         return $this->json(
             new CompanionRequest([
                 'method'    => Method::GET,
                 'uri'       => CompanionTokenManager::getToken()->region,
-                'endpoint'  => "/market/items/catalog/{$itemId}"
+                'endpoint'  => "/market/items/catalog/{$itemId}",
+                'query'    => [
+                    'worldName' => $server
+                ]
             ])
         );
     }
@@ -61,13 +80,22 @@ class Market extends Sight
     /**
      * @GET("market/items/category/{categoryId}")
      */
-    public function getMarketListingsByCategory(int $categoryId)
+    public function getMarketListingsByCategory(int $categoryId, string $server = null)
     {
+        $server = $server ?: CompanionTokenManager::getToken()->server;
+        
+        if ($server == null) {
+            throw new CompanionServerException('You must provide a server with requests to this endpoint.');
+        }
+        
         return $this->json(
             new CompanionRequest([
                 'method'   => Method::GET,
                 'uri'      => CompanionTokenManager::getToken()->region,
                 'endpoint' => "/market/items/category/{$categoryId}",
+                'query'    => [
+                    'worldName' => $server
+                ]
             ])
         );
     }
@@ -89,13 +117,22 @@ class Market extends Sight
     /**
      * @GET("market/items/history/catalog/{itemId}")
      */
-    public function getTransactionHistory(int $itemId)
+    public function getTransactionHistory(int $itemId, string $server = null)
     {
+        $server = $server ?: CompanionTokenManager::getToken()->server;
+    
+        if ($server == null) {
+            throw new CompanionServerException('You must provide a server with requests to this endpoint.');
+        }
+        
         return $this->json(
             new CompanionRequest([
                 'method'   => Method::GET,
                 'uri'      => CompanionTokenManager::getToken()->region,
                 'endpoint' => "/market/items/history/catalog/{$itemId}",
+                'query'    => [
+                    'worldName' => $server
+                ]
             ])
         );
     }

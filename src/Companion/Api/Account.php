@@ -3,6 +3,7 @@
 namespace Companion\Api;
 
 use Companion\Config\CompanionTokenManager;
+use Companion\Config\SightConfig;
 use Companion\Http\Cookies;
 use Companion\Http\Pem;
 use Companion\Http\Sight;
@@ -20,9 +21,6 @@ use phpseclib\Crypt\RSA;
  */
 class Account extends Sight
 {
-    const PLATFORM_IOS      = 1;
-    const PLATFORM_ANDROID  = 2;
-    
     /** @var string */
     private $loginUri;
     
@@ -85,8 +83,9 @@ class Account extends Sight
                 'endpoint'  => '/login/token',
                 'requestId' => ID::get(),
                 'json'      => [
-                    'platform'  => self::PLATFORM_ANDROID, // < THIS IS IMPORTANT
-                    'uid'       => $uid
+                    'appVersion' => SightConfig::APP_VERSION,
+                    'platform'   => SightConfig::PLATFORM_ANDROID, // < THIS IS IMPORTANT
+                    'uid'        => $uid
                 ]
             ])
         );
@@ -103,14 +102,14 @@ class Account extends Sight
                 'method'    => Method::GET,
                 'uri'       => $this->loginUri,
                 'version'   => '',
-                'requestId' => ID::get()
+                'requestId' => ID::get(),
+                'userAgent' => SightConfig::USER_AGENT_2,
             ])
         );
-        
+
         // if this response contains "cis_sessid" then we was auto-logged in using cookies
         // otherwise it's the login form and we need to login to get the cis_sessid
-        if (stripos($html, 'cis_sessid') === false) {
-            // todo - convert to: https://github.com/xivapi/companion-php
+        if (stripos($html, 'cis_sessid') !== true) {
             preg_match('/(.*)action="(?P<action>[^"]+)">/', $html, $matches);
             $action = trim($matches['action']);
             preg_match('/(.*)name="_STORED_" value="(?P<stored>[^"]+)">/', $html, $matches);
@@ -129,6 +128,7 @@ class Account extends Sight
                     'uri'       => CompanionRequest::URI_SE . "/oauth/oa/{$action}",
                     'version'   => '',
                     'requestId' => ID::get(),
+                    'userAgent' => SightConfig::USER_AGENT_2,
                     'form'      => $formData,
                 ])
             );
@@ -153,6 +153,7 @@ class Account extends Sight
             'form'      => $formData,
             'version'   => '',
             'requestId' => ID::get(),
+            'userAgent' => SightConfig::USER_AGENT_2,
             'return202' => true,
         ]);
         
@@ -169,7 +170,7 @@ class Account extends Sight
     {
         return CompanionRequest::SQEX_AUTH_URI .'?'. http_build_query([
             'client_id'     => 'ffxiv_comapp',
-            'lang'          => 'en-us',
+            'lang'          => 'en-gb',
             'response_type' => 'code',
             'redirect_uri'  => $this->buildCompanionOAuthRedirectUri(),
         ]);
