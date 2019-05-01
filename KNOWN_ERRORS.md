@@ -8,6 +8,7 @@ These are codes which I have seen from the Companion API and observed their beha
 - **111099** = You tried access a world you're currently not visiting.
 - **340000** = Shit broke on SE's end. You will get this a lot if you spam their service (along with a permanent account Ban).
 - **311004** = Don't know what causes this, maybe not logging into game for some time?
+- **311006** = You have no characters.
 - **311007** = App says session expired, but it's because the cookie wasn't set properly (or at all) so you're technically not logged in
 - **311009** = likely not confirmed character status, happens if you do not callthat endpoint
 - **319201** = Server being access has gone down for emergency maintenance
