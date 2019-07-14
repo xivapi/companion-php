@@ -6,152 +6,26 @@ To learn more about the FFXIV Companion App, read the [Research Doc](https://git
 
 If you are just interested in market data and not access Companion App features, have a look at XIVAPI: https://xivapi.com/docs/Market
 
-## !!! -- ⚠️ BE AWARE - BANS ⚠️ -- !!!
-
-**Can you be banned using this? YES**
-
-**Really?** Possibly.
-
-So. In March 2019 I ran a service that queried every item on every server to record prices. I was performing around 100-150+ requests/second. Performing millions of updates (each item is 4 requests) every hour. I received around 30,000 errors but compared to several million successful responses I did not care.
-
-All 3 accounts that I used were immediately de-activated, then a few days later were permanently banned for violating the Terms of Service. The violations will include: Cheating, Automation and Affecting Services. (A mini DDOS essentially...)
-
-If you use this library, you are using it at your own risk. I have used it with my personal accounts and they have not received bans even though they come from the same IP and even have performed very "dodgy" requests (like funny headers tht SE could log...)
-
-Basically right now; if you take the piss and spam their service, expect a ban. Keep your requests low, like 10 items a minute low...
-
-**If you want to be fully safe:**
-
-Buy a new account. You only need the base game, and you only have to create the chracter. You don't even have to do anything with the character, just make it and immediately logout. Once a character is created it can be used on Companion after an hour or so (cache). An account with 30 days free is $10 on the official SE site, about the price of a sub :)
-
-
 ## Terminology:
 
 - **Companion**: The Official FFXIV Companioon Mobile App.
 - **Sight**: The API that SE uses within the app to talk to the Game Servers.
 
-## How to use
+## Library Documentation
 
-Include the library using composer: https://packagist.org/packages/xivapi/companion-php
+- [Ban Disclaimer](https://github.com/xivapi/companion-php/wiki/Ban-Disclaimer) - Please read this.
+- [Getting Started](https://github.com/xivapi/companion-php/wiki/Getting-Started)
+  - `composer require xivapi/companion-php`
+- [Tokens](https://github.com/xivapi/companion-php/wiki/Tokens)
+  - Information on how tokens work, and understanding the `SightToken` object.
+  - [Tokens: Manual Login](https://github.com/xivapi/companion-php/wiki/Tokens:-Manual)
+  - [Tokens: Automatic Login](https://github.com/xivapi/companion-php/wiki/Tokens:-Automatic)
+  
 
-```bash
-composer require xivapi/companion-php
-```
+-----
 
-### Token Management via `CompanionConfig`
+_todo ... move more of this to the wiki_
 
-> *Note*: It is highly recommended you manage your own tokens in a private database rather than using the in-built token management. You can always access the current token the library is using via: `$api->Token()->get()`.
-
-The library can keep a record of your Sight Access Token information to be able to query against the Sight API. This is optional and by default it will not save any tokens. You can either inform the library to save a token to a file or you can request your token at anytime and save it however you prefer (db, redis, s3, whatever).
-
-If you want the library to record the Sight Access Token information, tell it where to save:
-
-```php
-use Companion\Config\CompanionConfig;
-CompanionConfig::setTokenFilename('/path/to/save/token');
-```
-
-It is extremely important that: The path is not publicly accessible on the internet AND is not within the library itself (composer update will delete it).
-
-## Token API
-
-This is the libraries token interface:
-
-```
-use Companion\CompanionApi;
-
-$api = new CompanionApi();
-$api->Token()->set($token); // Set a token to use, can override any existing token
-$api->Token()->get(); // Returns a SightToken that is currently being used
-$api->Token()->save(); // Save the current token
-$api->Token()->load(); // Load all saved token
-$api->Token()->hasExpired(timestamp); // true||false if a token has expired based on a timestamp
-```
-
-### Initializing the API
-
-When you initialize the API you can provide a `token` parameter. This will either be:
-
-- a `stdClass` object of an existing token that you have saved.
-- a `string` that can be used as a name for your token. If you are using the libraries built-in Token Management then it will try find an existing token with this name, otherwise a new token object will be created.
-
-```php
-use Companion\CompanionApi;
-
-// new or existing saved token
-$api = new CompanionApi('name_of_your_token');
-
-// passing a saved token
-$savedToken = json_decode('{ ... }');
-$api = new CompanionApi($savedToken);
-```
-
-If you do not provide one, it is expected you use `$api->Token()->set($token);` at some point to assign one.
-
-### Getting a token!
-
-Once you've decided how you're going to manage your Sight tokens and you're ready to go, we need to decide which method of accessing the API we're going to use. The 2 are:
-
-- **Manual** - Ask the library to generate a login URL for you. This Url is an official Square-Enix Secure URL (the exact one the Companion App presents to you) which you can login to and authenticate your token. This works with 2 factor authentication.
-- **Auto-Login** - Provide the library your Square-Enix Username+Password and it will automatically login to the app for you and authenticate your token. This does not work with 2 factor authentication at this time.
-
-
-
-### Login - Manual
-
-```php
-use Companion\CompanionApi;
-$api      = new CompanionApi('my_token_name');
-$loginUrl = $api->Account()->getLoginUrl();
-$token    = $api->Token()->get()->token;
-echo "Token: {$token} - Login URL: \n\n{$loginUrl}\n\n";
-```
-
-The variable `$loginUrl` will be the url to the secure Square-Enix login form. When you open it; if you have never logged in before then a login form will appear. Login with your Square-Enix account and it will set cookies, authenticate the token and return a status code of either `200` or `202`.
-
-Once you have a `200` or `202` status, your `$token` will be valid for 24 hours.
-
-> *Note:* At this point you must follow the **Character Select Process** flow steps listed further down the documentation before you can query any of the Sight Endpoints.
-
-If you are using the built in Token Manager; you can now access this token via the name `profile_name`. This means all future queries (once you have selected a character) can be setup like so:
-
-```php
-use Companion\CompanionApi;
-$api = new CompanionApi('my_token_name');
-$earthShardPrices = $api->market()->getItemMarketListings(5);
-```
-
-
-### Login Automatic
-
-To smooth out automation, you can have the library log into the companion app for you, like so:
-
-```php
-use Companion\CompanionApi;
-
-$api = new CompanionApi('my_token_name');
-
-// login to our SE Account
-$api->Account()->login('Username', 'Password');
-```
-
-Once logged in the API will be ready to go. You can get your token at anytime using:
-
-```php
-$api->Token()->get();
-```
-
-> *Note:* At this point you must follow the **Character Select Process** flow steps listed further down the documentation before you can query any of the Sight Endpoints.
-
-> *Note:* For getting market items you MUST provide the server your character is currently on. If its on your home world, no argument is required as the token will be used, if you're visiting another world then that servers name must be provided as the 2nd argument.
-
-If you are using the built in Token Manager; you can now access this token via the name `profile_name`. This means all future queries (once you have selected a character) can be setup like so:
-
-```php
-use Companion\CompanionApi;
-$api = new CompanionApi('my_token_name');
-$earthShardPrices = $api->market()->getItemMarketListings(5);
-```
 
 ## Character Select Process
 

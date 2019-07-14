@@ -66,24 +66,29 @@ class Sight
         if (CompanionSight::get('QUERY_LOOPED') === false) {
             return $client->{$request->method}($uri, $options);
         }
+
+        $loopCount = CompanionSight::get('QUERY_LOOP_COUNT');
+        $loopDelay = CompanionSight::get('QUERY_DELAY_MS');
         
         // query multiple times, as SE provide a "202" Accepted which is
         // their way of saying "Soon(tm)", so... try again.
-        foreach (range(0, CompanionSight::get('QUERY_LOOP_COUNT')) as $i) {
+        foreach (range(0, $loopCount) as $i) {
             /** @var Response $response */
             $response = $client->{$request->method}($uri, $options);
         
             // if the response is 202, try again
             if (!$request->return202 && $response->getStatusCode() == 202) {
                 // wait half a second
-                usleep(CompanionSight::get('QUERY_DELAY_MS'));
+                usleep($loopDelay);
                 continue;
             }
         
             return new CompanionResponse($response, $uri);
         }
-        
-        throw new \Exception('Did not receive any valid HTTP code from the Companion API after 15 seconds and 30 attempts.');
+
+        $loopDelayText = ceil($loopDelay / 1000);
+        $lastResponseCode = isset($response) ? $response->getStatusCode() : 'None';
+        throw new \Exception("No valid response from companion, Loops: {$loopCount}/{$loopDelayText}ms - Last code: {$lastResponseCode}");
     }
 
     // ------------------------------------------------
