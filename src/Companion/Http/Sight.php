@@ -64,7 +64,9 @@ class Sight
 
         // if we're not looping query, perform it and return response
         if (CompanionSight::get('QUERY_LOOPED') === false) {
-            return $client->{$request->method}($uri, $options);
+            return new CompanionResponse(
+                $client->{$request->method}($uri, $options), $uri
+            );
         }
 
         $loopCount = CompanionSight::get('QUERY_LOOP_COUNT');
