@@ -2,6 +2,7 @@
 
 namespace Companion\Models;
 
+use Companion\Config\CompanionSight;
 use Companion\Config\CompanionTokenManager;
 use Companion\Config\SightConfig;
 use Companion\Utils\ID;
@@ -57,6 +58,9 @@ class CompanionRequest
         $this->headers['User-Agent']      = $config->userAgent ?? SightConfig::USER_AGENT;
         $this->headers['request-id']      = $config->requestId ?? ID::uuid();
         $this->headers['token']           = $config->token ?? CompanionTokenManager::getToken()->token;
+    
+        // use any hard coded request ids
+        $this->headers['request-id']      =  CompanionSight::get('REQUEST_ID') ?: $this->headers['request-id'];
         
         // only set content type when the version exists (thus hitting the API)
         if ($this->version) {

@@ -21,6 +21,8 @@ class CompanionSight
         'QUERY_DELAY_MS'    => 800 * 1000,
         // the estimated token expiry time, it should last 24 hours but SE are being inconsistent...
         'TOKEN_EXPIRY_HRS'  => 12,
+        // a static request id
+        'REQUEST_ID'        => null,
     ];
 
     /** @var array */
