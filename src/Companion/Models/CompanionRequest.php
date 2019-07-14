@@ -61,6 +61,7 @@ class CompanionRequest
     
         // use any hard coded request ids
         $this->headers['request-id']      = CompanionSight::get('REQUEST_ID') ?: $this->headers['request-id'];
+        $this->headers['request-id']      = strtoupper($this->headers['request-id']);
         
         // only set content type when the version exists (thus hitting the API)
         if ($this->version) {
