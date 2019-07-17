@@ -9,7 +9,7 @@
         "guzzlehttp/guzzle": "~6.0",
         "ramsey/uuid": "^3.8",
         "phpseclib/phpseclib": "^2.0",
-        "rct567/dom-query": "^0.6.2"
+        "rct567/dom-query": "^0.8.0"
     },
     "autoload": {
         "psr-0": {
