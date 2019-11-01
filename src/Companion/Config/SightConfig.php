@@ -12,7 +12,7 @@ class SightConfig
     
     const PLATFORM_IOS              = 1;
     const PLATFORM_ANDROID          = 2;
-    const USER_AGENT                = 'ffxivcomapp-e/1.3.0.0 CFNetwork/978.0.7 Darwin/18.5.0';
+    const USER_AGENT                = 'xivcompanion-EU/1.5.0 Device/1';
     const USER_AGENT_2              = 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) XIV-Companion for iPhone';
     const ACCEPT                    = '*/*';
     const ACCEPT_LANGUAGE           = 'en-gb';
