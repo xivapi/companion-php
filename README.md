@@ -4,7 +4,11 @@ A library for interacting with the FFXIV Companion App API
 
 To learn more about the FFXIV Companion App, read the [Research Doc](https://github.com/viion/ffxiv-datamining/blob/master/docs/CompanionAppApi.md).
 
-If you are just interested in market data and not access Companion App features, have a look at XIVAPI: https://xivapi.com/docs/Market
+## If you cannot use PHP
+
+XIVAPI provides endpoints that can give you a companion token with your own account and even let you query the market board. It provides both automated login or providing the SE Official Login. This is useful if you want to use your own account but only know frontend dev (eg: JavaScript), or you're building an Electron app.
+
+If you'd like to try this, please message **Vekien#3458** on discord for endpoint information.
 
 ## Terminology:
 
@@ -23,9 +27,6 @@ If you are just interested in market data and not access Companion App features,
   
 
 -----
-
-_todo ... move more of this to the wiki_
-
 
 ## Character Select Process
 
