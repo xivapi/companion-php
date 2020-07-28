@@ -18,6 +18,7 @@ $api = new CompanionApi('test_'. time());
 print_r( $api->Token()->get() );
 
 /*
+echo "Getting login url ...\n\n";
 $loginUrl = $api->Account()->getLoginUrl();
 $tokenId  = $api->Token()->get()->token;
 echo "Token: {$tokenId} - Login URL: \n\n{$loginUrl}\n\n";
@@ -35,13 +36,18 @@ $api->Account()->login($config->user, $config->pass);
 
 // Get a list of characters
 echo "Getting a list of characters\n";
+$cid = null;
 foreach ($api->Login()->getCharacters()->accounts[0]->characters as $character) {
     echo "- {$character->cid} :: {$character->name} ({$character->world})\n";
+    
+    if ($cid === null) {
+        $cid = $character->cid;
+    }
 }
 
 // Login with a character, this should return the region
 echo "log-in in with a character\n";
-$api->Login()->loginCharacter($config->cid);
+$api->Login()->loginCharacter($cid);
 
 // Get current logged in character;
 $character = $api->Login()->getCharacter()->character;

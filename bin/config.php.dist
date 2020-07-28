@@ -6,5 +6,4 @@
 return (object)[
     'user' => '',
     'pass' => '',
-    'cid'  => '',
 ];
