@@ -1,3 +1,5 @@
+# Deprecated
+
 # Companion PHP  
   
 A library for interacting with the FFXIV Companion App API
